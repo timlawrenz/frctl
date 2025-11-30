@@ -20,7 +20,7 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual environments
+# Virtual Environment
 .venv/
 venv/
 ENV/
@@ -33,9 +33,23 @@ env/
 *.swo
 *~
 
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Frctl specific
+.frctl/
+
+# Environment
+.env
+.env.local
+
 # OS
 .DS_Store
 Thumbs.db
 
-# Project specific
-.frctl/
+# Temporary files
+*.log
+*.tmp

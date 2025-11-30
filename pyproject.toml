@@ -16,9 +16,24 @@ dependencies = [
     "jinja2>=3.0",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+]
+
 [project.scripts]
 frctl = "frctl.__main__:cli"
 
 [tool.setuptools.packages.find]
 include = ["frctl*"]
-exclude = ["openspec*"]
+exclude = ["openspec*", "tests*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+]

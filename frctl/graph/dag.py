@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
 import networkx as nx
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from frctl.graph.node import Node, NodeType
 from frctl.graph.edge import Edge, EdgeType
@@ -29,12 +29,11 @@ class FederatedGraph(BaseModel):
     that enforces strict dependency management.
     """
     
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    
     nodes: Dict[str, Node] = Field(default_factory=dict, description="Nodes indexed by ID")
     edges: List[Edge] = Field(default_factory=list, description="List of edges")
     metadata: Dict[str, Any] = Field(default_factory=dict, description="Graph-level metadata")
-    
-    class Config:
-        arbitrary_types_allowed = True
     
     def _get_nx_graph(self) -> nx.DiGraph:
         """Build NetworkX graph from current state."""

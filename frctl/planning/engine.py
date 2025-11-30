@@ -79,7 +79,7 @@ class PlanningEngine:
         messages = [
             {
                 "role": "system",
-                "content": "You are an expert software architect. Determine if a goal is atomic (can be implemented in a single file/component) or composite (needs to be broken down)."
+                "content": "You are an expert software architect. Determine if a goal is atomic (can be implemented in a single file/component) or composite (needs to be broken down). Always respond with valid JSON."
             },
             {
                 "role": "user",
@@ -87,23 +87,48 @@ class PlanningEngine:
 
 Is this goal atomic (simple enough to implement directly) or composite (needs to be broken into sub-goals)?
 
-Respond with JSON:
+Respond with ONLY this JSON structure (no markdown, no explanation):
 {{
-    "is_atomic": true/false,
-    "reasoning": "explanation"
+    "is_atomic": true,
+    "reasoning": "explanation here"
 }}"""
             }
         ]
         
         try:
             response = self.llm.generate(messages, temperature=0.3)
-            content = response["content"]
+            content = response["content"].strip()
             
-            # Simple parsing (in production, use structured output)
-            is_atomic = "true" in content.lower() and "is_atomic" in content.lower()
+            # Extract JSON from response (handle markdown code blocks)
+            import json
+            import re
+            
+            # Try to extract JSON from markdown code blocks
+            json_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', content, re.DOTALL)
+            if json_match:
+                json_str = json_match.group(1)
+            else:
+                # Try to find JSON object directly
+                json_match = re.search(r'(\{.*\})', content, re.DOTALL)
+                if json_match:
+                    json_str = json_match.group(1)
+                else:
+                    json_str = content
+            
+            # Parse JSON
+            try:
+                parsed = json.loads(json_str)
+                is_atomic = parsed.get("is_atomic", False)
+                reasoning = parsed.get("reasoning", "No reasoning provided")
+            except json.JSONDecodeError as je:
+                print(f"JSON parsing failed: {je}")
+                print(f"Content: {content}")
+                # Fallback to keyword detection
+                is_atomic = "true" in content.lower() and "is_atomic" in content.lower()
+                reasoning = content
             
             # Store reasoning
-            goal.reasoning = content
+            goal.reasoning = reasoning
             goal.tokens_used += response["usage"]["total_tokens"]
             
             return is_atomic
@@ -127,7 +152,7 @@ Respond with JSON:
         messages = [
             {
                 "role": "system",
-                "content": "You are an expert software architect. Break down complex goals into 2-7 concrete sub-goals."
+                "content": "You are an expert software architect. Break down complex goals into 2-7 concrete sub-goals. Always respond with valid JSON."
             },
             {
                 "role": "user",
@@ -135,30 +160,57 @@ Respond with JSON:
 
 Break this down into concrete sub-goals. Each sub-goal should be clear and specific.
 
-Respond with JSON:
+Respond with ONLY this JSON structure (no markdown, no explanation):
 {{
     "sub_goals": [
         {{"description": "first sub-goal"}},
         {{"description": "second sub-goal"}},
         ...
     ],
-    "reasoning": "explanation of decomposition"
+    "reasoning": "explanation of decomposition strategy"
 }}"""
             }
         ]
         
         try:
             response = self.llm.generate(messages, temperature=0.5)
-            content = response["content"]
+            content = response["content"].strip()
             
-            # Simple parsing (in production, use structured output)
-            # For now, create placeholder children
+            # Extract JSON from response (handle markdown code blocks)
+            import json
+            import re
+            
+            # Try to extract JSON from markdown code blocks
+            json_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', content, re.DOTALL)
+            if json_match:
+                json_str = json_match.group(1)
+            else:
+                # Try to find JSON object directly
+                json_match = re.search(r'(\{.*\})', content, re.DOTALL)
+                if json_match:
+                    json_str = json_match.group(1)
+                else:
+                    json_str = content
+            
+            # Parse JSON
+            try:
+                parsed = json.loads(json_str)
+                sub_goals_data = parsed.get("sub_goals", [])
+                reasoning = parsed.get("reasoning", "No reasoning provided")
+            except json.JSONDecodeError as je:
+                print(f"JSON parsing failed: {je}")
+                print(f"Content: {content}")
+                # Fallback to simple parsing
+                sub_goals_data = []
+                reasoning = content
+            
+            # Create child goals from parsed data
             children = []
-            for i in range(min(3, self.max_children)):  # Default to 3 children
+            for i, sub_goal_data in enumerate(sub_goals_data[:self.max_children]):
                 child_id = f"{goal.id}-{i+1}"
                 child = Goal(
                     id=child_id,
-                    description=f"Sub-goal {i+1} of: {goal.description[:30]}...",
+                    description=sub_goal_data.get("description", f"Sub-goal {i+1}"),
                     parent_id=goal.id,
                     depth=goal.depth + 1,
                     status=GoalStatus.PENDING,
@@ -166,7 +218,22 @@ Respond with JSON:
                 children.append(child)
                 goal.add_child(child_id)
             
-            goal.reasoning = content
+            # If parsing failed or no sub-goals, create default fallback
+            if not children:
+                print(f"Warning: No sub-goals parsed, creating fallback decomposition")
+                for i in range(min(3, self.max_children)):
+                    child_id = f"{goal.id}-{i+1}"
+                    child = Goal(
+                        id=child_id,
+                        description=f"Sub-task {i+1}: {goal.description[:40]}...",
+                        parent_id=goal.id,
+                        depth=goal.depth + 1,
+                        status=GoalStatus.PENDING,
+                    )
+                    children.append(child)
+                    goal.add_child(child_id)
+            
+            goal.reasoning = reasoning
             goal.tokens_used += response["usage"]["total_tokens"]
             goal.mark_complete()
             
