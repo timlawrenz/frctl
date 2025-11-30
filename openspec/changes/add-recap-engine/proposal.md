@@ -14,15 +14,19 @@ This change implements the planning engine that transforms high-level goals into
 
 ## What Changes
 
-- Add recursive planning engine with goal decomposition algorithm
-- Implement Context Tree for hierarchical context management
-- Add hydration/dehydration protocol for token hygiene
-- Create LLM provider abstraction layer
-- Implement atomicity detection using LLM reasoning
-- Add planning state persistence to `.frctl/plans/`
-- Create CLI commands for planning workflows
-- Add digest generation for context compression
-- Implement parent-child context propagation
+**Completed:**
+- ✅ Implement Context Tree for hierarchical context management
+- ✅ Add hydration/dehydration protocol for token hygiene
+- ✅ Create LLM provider abstraction layer
+- ✅ Implement atomicity detection using LLM reasoning
+- ✅ Implement parent-child context propagation
+- ✅ Add recursive planning engine with goal decomposition algorithm (basic version)
+
+**In Progress:**
+- 🔄 Add planning state persistence to `.frctl/plans/`
+- 🔄 Create CLI commands for planning workflows
+- 🔄 Add digest generation for context compression
+- 🔄 Prompt templates with Jinja2
 
 ## Impact
 
