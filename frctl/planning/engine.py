@@ -1,11 +1,12 @@
 """Recursive Context-Aware Planning (ReCAP) engine."""
 
 import uuid
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from pathlib import Path
 
 from frctl.planning.goal import Goal, GoalStatus, Plan
 from frctl.llm.provider import LLMProvider
+from frctl.context import ContextTree
 
 
 class PlanningEngine:
@@ -23,6 +24,8 @@ class PlanningEngine:
         llm_provider: Optional[LLMProvider] = None,
         max_depth: int = 10,
         max_children: int = 7,
+        token_limit: int = 8192,
+        global_context: Optional[Dict[str, Any]] = None,
     ):
         """Initialize planning engine.
         
@@ -30,10 +33,16 @@ class PlanningEngine:
             llm_provider: LLM provider for reasoning (defaults to gpt-4)
             max_depth: Maximum planning depth before forcing atomic
             max_children: Maximum children per decomposition
+            token_limit: Token limit per context node
+            global_context: Global project context
         """
         self.llm = llm_provider or LLMProvider(model="gpt-4")
         self.max_depth = max_depth
         self.max_children = max_children
+        self.context_tree = ContextTree(
+            default_token_limit=token_limit,
+            global_context=global_context or {},
+        )
     
     def create_plan(self, description: str) -> Plan:
         """Create a new planning session.
@@ -60,10 +69,13 @@ class PlanningEngine:
         )
         plan.add_goal(root_goal)
         
+        # Create root context
+        self.context_tree.create_root_context(root_goal_id)
+        
         return plan
     
     def assess_atomicity(self, goal: Goal) -> bool:
-        """Assess if a goal is atomic using LLM.
+        """Assess if a goal is atomic using LLM with context.
         
         Args:
             goal: Goal to assess
@@ -75,6 +87,16 @@ class PlanningEngine:
         if goal.depth >= self.max_depth:
             return True
         
+        # Get hydrated context for this goal
+        context = self.context_tree.hydrate_context(goal.id)
+        
+        # Build context-aware prompt
+        context_info = ""
+        if context.get("parent_intent"):
+            context_info += f"\nParent Goal: {context['parent_intent']}"
+        if context.get("global"):
+            context_info += f"\nProject Context: {context['global']}"
+        
         # Simple prompt for atomicity check
         messages = [
             {
@@ -83,7 +105,7 @@ class PlanningEngine:
             },
             {
                 "role": "user",
-                "content": f"""Goal: {goal.description}
+                "content": f"""Goal: {goal.description}{context_info}
 
 Is this goal atomic (simple enough to implement directly) or composite (needs to be broken into sub-goals)?
 
@@ -127,9 +149,11 @@ Respond with ONLY this JSON structure (no markdown, no explanation):
                 is_atomic = "true" in content.lower() and "is_atomic" in content.lower()
                 reasoning = content
             
-            # Store reasoning
+            # Store reasoning and update token usage
             goal.reasoning = reasoning
-            goal.tokens_used += response["usage"]["total_tokens"]
+            tokens = response["usage"]["total_tokens"]
+            goal.tokens_used += tokens
+            self.context_tree.update_token_usage(goal.id, tokens)
             
             return is_atomic
             
@@ -139,7 +163,7 @@ Respond with ONLY this JSON structure (no markdown, no explanation):
             return True
     
     def decompose_goal(self, goal: Goal) -> List[Goal]:
-        """Decompose a composite goal into children.
+        """Decompose a composite goal into children with isolated contexts.
         
         Args:
             goal: Goal to decompose
@@ -149,6 +173,16 @@ Respond with ONLY this JSON structure (no markdown, no explanation):
         """
         goal.status = GoalStatus.DECOMPOSING
         
+        # Get hydrated context for this goal
+        context = self.context_tree.hydrate_context(goal.id)
+        
+        # Build context-aware prompt
+        context_info = ""
+        if context.get("parent_intent"):
+            context_info += f"\nParent Goal: {context['parent_intent']}"
+        if context.get("global"):
+            context_info += f"\nProject Context: {context['global']}"
+        
         messages = [
             {
                 "role": "system",
@@ -156,7 +190,7 @@ Respond with ONLY this JSON structure (no markdown, no explanation):
             },
             {
                 "role": "user",
-                "content": f"""Goal: {goal.description}
+                "content": f"""Goal: {goal.description}{context_info}
 
 Break this down into concrete sub-goals. Each sub-goal should be clear and specific.
 
@@ -204,37 +238,58 @@ Respond with ONLY this JSON structure (no markdown, no explanation):
                 sub_goals_data = []
                 reasoning = content
             
-            # Create child goals from parsed data
+            # Create child goals from parsed data with isolated contexts
             children = []
             for i, sub_goal_data in enumerate(sub_goals_data[:self.max_children]):
                 child_id = f"{goal.id}-{i+1}"
+                child_desc = sub_goal_data.get("description", f"Sub-goal {i+1}")
+                
                 child = Goal(
                     id=child_id,
-                    description=sub_goal_data.get("description", f"Sub-goal {i+1}"),
+                    description=child_desc,
                     parent_id=goal.id,
                     depth=goal.depth + 1,
                     status=GoalStatus.PENDING,
                 )
                 children.append(child)
                 goal.add_child(child_id)
+                
+                # Create isolated context for child with parent intent
+                self.context_tree.create_child_context(
+                    goal_id=child_id,
+                    parent_goal_id=goal.id,
+                    parent_intent=child_desc,
+                )
             
             # If parsing failed or no sub-goals, create default fallback
             if not children:
                 print(f"Warning: No sub-goals parsed, creating fallback decomposition")
                 for i in range(min(3, self.max_children)):
                     child_id = f"{goal.id}-{i+1}"
+                    child_desc = f"Sub-task {i+1}: {goal.description[:40]}..."
+                    
                     child = Goal(
                         id=child_id,
-                        description=f"Sub-task {i+1}: {goal.description[:40]}...",
+                        description=child_desc,
                         parent_id=goal.id,
                         depth=goal.depth + 1,
                         status=GoalStatus.PENDING,
                     )
                     children.append(child)
                     goal.add_child(child_id)
+                    
+                    # Create context for fallback child
+                    self.context_tree.create_child_context(
+                        goal_id=child_id,
+                        parent_goal_id=goal.id,
+                        parent_intent=child_desc,
+                    )
             
+            # Update parent goal with reasoning and token usage
             goal.reasoning = reasoning
-            goal.tokens_used += response["usage"]["total_tokens"]
+            tokens = response["usage"]["total_tokens"]
+            goal.tokens_used += tokens
+            self.context_tree.update_token_usage(goal.id, tokens)
             goal.mark_complete()
             
             return children
@@ -295,10 +350,15 @@ Respond with ONLY this JSON structure (no markdown, no explanation):
         # Mark complete
         plan.mark_complete()
         
+        # Get context tree statistics
+        stats = self.context_tree.get_tree_stats()
+        
         print(f"\n✅ Planning complete!")
         print(f"   Total goals: {len(plan.goals)}")
         print(f"   Atomic goals: {len(plan.get_atomic_goals())}")
         print(f"   Max depth: {plan.max_depth}")
         print(f"   Total tokens: {plan.total_tokens}")
+        print(f"   Context nodes: {stats['total_nodes']}")
+        print(f"   Avg tokens/context: {stats['avg_tokens_per_node']:.0f}")
         
         return plan
