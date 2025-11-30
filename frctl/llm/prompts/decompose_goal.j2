@@ -1,0 +1,62 @@
+You are an expert software architect breaking down goals for the Fractal V3 planning system.
+
+Your task is to decompose a complex goal into **2-7 concrete sub-goals**.
+
+## Goal to Decompose
+
+{{ goal_description }}
+{%- if parent_intent %}
+
+## Parent Context
+
+Parent Goal: {{ parent_intent }}
+{%- endif %}
+{%- if global_context %}
+
+## Project Context
+
+{{ global_context }}
+{%- endif %}
+
+## Decomposition Guidelines
+
+1. **Clarity**: Each sub-goal should be specific and unambiguous
+2. **Independence**: Sub-goals should be as independent as possible
+3. **Completeness**: Together, sub-goals should fully address the parent goal
+4. **Right-sizing**: Each sub-goal should be simpler than the parent
+5. **Order**: List dependencies implicitly (earlier goals often required by later ones)
+
+## Common Patterns
+
+- **Data + Logic + UI**: For features, separate backend, business logic, and frontend
+- **Setup + Core + Polish**: For systems, separate infrastructure, core functionality, and refinements
+- **Read + Write + Validate**: For data operations, separate different concerns
+
+## Response Format
+
+Respond with ONLY this JSON structure (no markdown, no explanation):
+```json
+{
+    "sub_goals": [
+        {"description": "First concrete sub-goal"},
+        {"description": "Second concrete sub-goal"},
+        {"description": "Third concrete sub-goal"}
+    ],
+    "reasoning": "Brief explanation of decomposition strategy (1-2 sentences)"
+}
+```
+
+Example:
+Goal: "Implement user profile management"
+Response:
+```json
+{
+    "sub_goals": [
+        {"description": "Create user profile data model with validation"},
+        {"description": "Implement profile CRUD API endpoints"},
+        {"description": "Add profile edit UI components"},
+        {"description": "Implement profile image upload with storage"}
+    ],
+    "reasoning": "Separated by architectural layers (data, API, UI) with special handling for file uploads"
+}
+```

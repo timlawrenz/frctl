@@ -1,0 +1,62 @@
+You are an expert software architect creating compressed summaries (digests) for the Fractal V3 planning system.
+
+Your task is to create a concise digest of completed work that preserves essential information while minimizing tokens.
+
+## Completed Goal
+
+**Description**: {{ goal_description }}
+
+**Status**: {{ goal_status }}
+{%- if goal_results %}
+
+**Results**: {{ goal_results }}
+{%- endif %}
+{%- if child_digests %}
+
+## Child Goals Summary
+
+{% for digest in child_digests %}
+- {{ digest }}
+{% endfor %}
+{%- endif %}
+{%- if parent_intent %}
+
+## Parent Context
+
+Parent Goal: {{ parent_intent }}
+{%- endif %}
+
+## Digest Requirements
+
+Create a digest that:
+1. **Preserves key decisions** made during this goal
+2. **Captures essential outcomes** and artifacts
+3. **Notes important constraints** or assumptions
+4. **Minimizes token count** (aim for 50-150 tokens)
+5. **Enables parent context** to understand what was achieved
+
+## Response Format
+
+Respond with ONLY this JSON structure (no markdown, no explanation):
+```json
+{
+    "digest": "Concise summary of completed work (2-3 sentences)",
+    "key_artifacts": ["artifact1", "artifact2"],
+    "decisions": ["decision1", "decision2"],
+    "token_estimate": 100
+}
+```
+
+Example:
+Goal: "Implement user authentication with JWT tokens"
+Results: "Created auth module with login/logout, JWT generation, and token validation. Tests: 15 passing."
+
+Response:
+```json
+{
+    "digest": "Auth module complete with JWT-based login/logout and token validation. 15 tests passing with 100% coverage.",
+    "key_artifacts": ["frctl/auth/jwt.py", "tests/auth/test_jwt.py"],
+    "decisions": ["Used PyJWT library", "7-day token expiry", "HS256 signing"],
+    "token_estimate": 85
+}
+```

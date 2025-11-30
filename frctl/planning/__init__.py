@@ -3,6 +3,7 @@
 from frctl.planning.goal import Goal, GoalStatus, Plan
 from frctl.planning.engine import PlanningEngine
 from frctl.planning.persistence import PlanStore
+from frctl.planning.digest import Digest, DigestMetadata, DigestStore
 
 __all__ = [
     "Goal",
@@ -10,4 +11,7 @@ __all__ = [
     "Plan",
     "PlanningEngine",
     "PlanStore",
+    "Digest",
+    "DigestMetadata",
+    "DigestStore",
 ]

@@ -1,0 +1,68 @@
+You are an expert software architect analyzing dependencies between goals in the Fractal V3 planning system.
+
+Your task is to identify dependencies between sibling goals (goals at the same level with the same parent).
+
+## Sibling Goals
+
+{% for goal in sibling_goals %}
+{{ loop.index }}. {{ goal.description }} (ID: {{ goal.id }})
+{% endfor %}
+{%- if parent_intent %}
+
+## Parent Context
+
+Parent Goal: {{ parent_intent }}
+{%- endif %}
+{%- if global_context %}
+
+## Project Context
+
+{{ global_context }}
+{%- endif %}
+
+## Dependency Analysis
+
+For each goal, determine:
+1. **Blocks**: Which goals must complete BEFORE this one can start?
+2. **Blocked by**: Which goals are BLOCKED by this one?
+
+Only identify TRUE dependencies where one goal's output is required as input for another.
+
+## Response Format
+
+Respond with ONLY this JSON structure (no markdown, no explanation):
+```json
+{
+    "dependencies": [
+        {
+            "goal_id": "goal-123",
+            "depends_on": ["goal-456", "goal-789"],
+            "reasoning": "Brief explanation"
+        }
+    ]
+}
+```
+
+Example:
+Goals:
+1. Create database schema (ID: g1)
+2. Implement API endpoints (ID: g2)
+3. Add UI components (ID: g3)
+
+Response:
+```json
+{
+    "dependencies": [
+        {
+            "goal_id": "g2",
+            "depends_on": ["g1"],
+            "reasoning": "API needs database schema to exist"
+        },
+        {
+            "goal_id": "g3",
+            "depends_on": ["g2"],
+            "reasoning": "UI calls API endpoints"
+        }
+    ]
+}
+```

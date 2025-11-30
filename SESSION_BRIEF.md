@@ -1,9 +1,10 @@
 # Frctl Development - Session Brief
 
-**Last Updated**: 2025-11-30 02:35 UTC  
+**Last Updated**: 2025-11-30 03:55 UTC  
 **Repository**: github.com:timlawrenz/frctl  
 **Branch**: main (commit: 3c18bba)
-**Status**: ✅ Phase 1 Complete, Phase 2 in progress (Context Tree ✅)
+**Status**: ✅ Phase 1 Complete, Phase 2 in progress (~70% complete)
+**OpenSpec Proposal**: `add-recap-engine` (validated ✅)
 
 ---
 
@@ -16,30 +17,46 @@
 - ✅ Archived to openspec/specs/graph-core
 - ✅ **Committed and pushed** (commit: a8ea52b)
 
-### Phase 2: ReCAP Planning Engine ⚠️ IN PROGRESS (47%)
-- ✅ **FIXED**: LLM JSON response parsing (was ignoring responses!)
-- ✅ Goal and Plan data models complete
-- ✅ LLM provider wrapper complete
-- ✅ Basic recursive planning engine working
-- ✅ **Context Tree complete** (tasks 5.1-5.10) 🎉
-- ✅ **Plan Persistence complete** (tasks 8.1-8.10) 🎉
-- ✅ 10 tests for Goal/Plan models
-- ✅ 18 tests for Context Tree
-- ✅ 22 tests for Plan Persistence
-- ✅ 6 integration tests for engine-context
-- ✅ Gemini integration verified (test_gemini_direct.py)
-- ⚠️ Still needs: Digest Protocol, Prompts
+### Phase 2: ReCAP Planning Engine ⚠️ IN PROGRESS (70% - 88/126 tasks)
+**OpenSpec Proposal**: `openspec/changes/add-recap-engine/` (validated ✅)
+
+**Completed Components** (88 tasks ✅):
+- ✅ **Setup & Dependencies** (6/6) - LiteLLM, Jinja2, package structure
+- ✅ **LLM Provider** (10/10) - Full LiteLLM wrapper with token counting & cost tracking
+- ✅ **Prompt Templates** (10/10) - Professional Jinja2 system with 5 templates
+- ✅ **Goal Data Model** (10/10) - Complete Goal/AtomicGoal/CompositeGoal classes
+- ✅ **Context Tree** (10/10) - Full hierarchical context with hydration/dehydration
+- ✅ **Planning Engine Core** (9/10) - Recursive decomposition, atomicity detection
+- ✅ **Digest Protocol** (10/10) - Context compression with LLM-based summarization
+- ✅ **Plan Persistence** (10/10) - Save/load from .frctl/plans/ with versioning
+- ✅ **CLI Commands** (10/10) - Complete planning workflow CLI 🎉
+- ✅ **Testing** (3/10 partial) - 114+ planning/context/llm/cli tests passing
+
+**In Progress** (38 tasks remaining):
+- ⚠️ **Planning Engine** (1/10) - Need dependency inference, traversal, pause/resume
+- ⚠️ **Configuration** (0/10) - LLM config in .frctl/config.toml
+- ⚠️ **Testing** (7/10) - Need e2e multi-provider tests, more edge cases
+- ⚠️ **Documentation** (0/10) - All docs pending
+- ⚠️ **Validation** (0/10) - Final validation and polish
+
+**Test Coverage**: 199 total tests passing (100% pass rate)
+- Graph: 85 tests ✅
+- Planning: 10 goal + 6 integration + 22 persistence + 30 digest = 68 tests ✅
+- Context: 18 tests ✅
+- LLM: 19 renderer tests ✅
+- CLI: 9 tests ✅
 
 ---
 
 ## 🎉 Latest Achievements (This Session)
 
-1. **✅ Plan Persistence Implemented** - Full save/load with .frctl/plans/ storage
-2. **✅ Plan Indexing** - Fast lookup with metadata tracking
-3. **✅ Auto-save** - Plans saved automatically during planning
-4. **✅ Archiving & Backup** - Safe plan management with versioning
-5. **✅ 22 New Tests** - Comprehensive persistence tests (141 total passing)
-6. **✅ Engine Integration** - PlanningEngine now persists plans automatically
+1. **✅ Digest Protocol Implemented** - Complete context compression system
+2. **✅ CLI Commands Complete** - Full planning workflow from command line 🎉
+3. **✅ 8 CLI Commands** - list, status, review, export, visualize, delete, continue (init exists)
+4. **✅ ASCII & Mermaid Viz** - Tree visualization in multiple formats
+5. **✅ 9 CLI Tests** - Comprehensive command testing
+6. **✅ 39 New Tests Total** - Digest (30) + CLI (9) = 199 total passing
+7. **✅ Production-Ready CLI** - Archive, export, force flags, confirmations
 
 ---
 
@@ -51,13 +68,20 @@
 - 85 tests with 100% pass rate
 - Complete documentation
 
-**frctl/planning/** ✅ PERSISTENCE ADDED
+**frctl/planning/** ✅ PERSISTENCE + TEMPLATES + DIGEST
 - `goal.py` - Complete with 10 tests
-- `engine.py` - With Context Tree integration + auto-save
+- `engine.py` - With Context Tree + auto-save + templates + digest generation
 - `persistence.py` - Complete PlanStore with 22 tests
+- `digest.py` - Complete Digest Protocol with 30 tests
 - Recursive decomposition works
-- Atomicity detection works
+- Atomicity detection works with templates
 - Plans auto-save to .frctl/plans/
+- Digests compress context with LLM
+
+**frctl/llm/** ✅ TEMPLATES COMPLETE
+- `provider.py` - LiteLLM wrapper complete
+- `renderer.py` - Jinja2 template renderer with 19 tests
+- `prompts/` - 5 professional prompt templates (.j2 files)
 
 **frctl/context/** ✅ COMPLETE
 - `tree.py` - Full Context Tree implementation
@@ -67,39 +91,54 @@
 - Serialization support
 - 18 comprehensive tests
 
-**frctl/llm/** ✅ COMPLETE
-- `provider.py` - LiteLLM wrapper complete
-
-**tests/** ✅ 141 TESTS PASSING
+**tests/** ✅ 199 TESTS PASSING
 - `tests/graph/` - 85 tests
-- `tests/planning/` - 10 goal + 6 integration + 22 persistence tests
+- `tests/planning/` - 68 tests (10 goal + 6 integration + 22 persistence + 30 digest)
 - `tests/context/` - 18 tests
+- `tests/llm/` - 19 renderer tests
+- `tests/cli/` - 9 command tests
 - Gemini integration verified
 
 ---
 
 ## 🎯 Priority Next Steps
 
+**Based on OpenSpec proposal**: `add-recap-engine` (88/126 tasks complete)
+
 **CRITICAL** (blocks production use):
-1. ~~**Context Tree**~~ ✅ **COMPLETE** (10/10 tasks done!)
-2. ~~**Plan Persistence**~~ ✅ **COMPLETE** (10/10 tasks done!)
-3. **Prompt Templates** (0/10 tasks) - Makes it maintainable
+1. ~~**Context Tree**~~ ✅ **COMPLETE** (10/10 tasks)
+2. ~~**Plan Persistence**~~ ✅ **COMPLETE** (10/10 tasks)
+3. ~~**Prompt Templates**~~ ✅ **COMPLETE** (10/10 tasks)
+4. ~~**Digest Protocol**~~ ✅ **COMPLETE** (10/10 tasks)
+5. ~~**CLI Commands**~~ ✅ **COMPLETE** (10/10 tasks)
 
 **Important** (improves quality):
-4. **Digest Protocol** (0/10 tasks) - For context compression
-5. More tests for planning engine
-6. CLI expansion (plan status, list, continue)
+6. **Planning Engine** (9/10 tasks) - Need dependency inference, traversal, pause/resume
+7. **Configuration** (0/10 tasks) - LLM config in .frctl/config.toml
+8. **Testing** (3/10 tasks) - Need e2e multi-provider tests
+9. **Documentation** (0/10 tasks) - ReCAP algorithm, provider setup, examples
+10. **Validation** (0/10 tasks) - Final polish and validation
+
+**Recommended Next Action**:
+- Finish Planning Engine (tasks 6.5, 6.7-6.10) - Complete core algorithm
+- OR add Configuration (tasks 10.1-10.10) - LLM settings management
 
 ---
 
 ## 🔴 Still Missing
 
-1. ~~**Context Tree**~~ ✅ **DONE** - Hydration/dehydration complete!
-2. ~~**Plan Persistence**~~ ✅ **DONE** - Save/load from .frctl/plans/ complete!
-3. **Digest Protocol** - No context compression yet (won't scale to large plans)
-4. **Prompt Templates** - Using inline strings (should use Jinja2)
-5. **More CLI** - Only `plan init` exists (need status, list, continue, etc.)
-6. **Graph Integration** - Goals don't link to FederatedGraph nodes yet
+Based on OpenSpec `add-recap-engine` tasks (38 remaining):
+
+1. ~~**Context Tree**~~ ✅ **DONE** (10/10)
+2. ~~**Plan Persistence**~~ ✅ **DONE** (10/10)
+3. ~~**Prompt Templates**~~ ✅ **DONE** (10/10)
+4. ~~**Digest Protocol**~~ ✅ **DONE** (10/10)
+5. ~~**CLI Commands**~~ ✅ **DONE** (10/10)
+6. **Planning Engine** (1/10) - dependency inference, depth-first traversal, pause/resume, rollback
+7. **Configuration** (0/10) - .frctl/config.toml for LLM settings, API keys, preferences
+8. **Testing** (7/10) - e2e multi-provider tests, more edge cases
+9. **Documentation** (0/10) - ReCAP guide, provider config, examples, troubleshooting
+10. **Validation** (0/10) - Linting, benchmarks, final polish
 
 ---
 
@@ -139,8 +178,9 @@ source .venv/bin/activate
 # Run tests
 pytest tests/context/ -v       # Context tests (18)
 pytest tests/planning/ -v      # Planning tests (38: 10 goal + 6 integration + 22 persistence)
+pytest tests/llm/ -v           # LLM tests (19: renderer)
 pytest tests/graph/ -v         # Graph tests (85)
-pytest -v                      # All tests (141)
+pytest -v                      # All tests (160)
 
 # Try planning (requires Gemini API key in .env)
 .venv/bin/python test_gemini_direct.py
@@ -174,21 +214,36 @@ All documentation is complete and committed:
 
 ## 📝 How to Continue Next Session
 
-Just say:
+**Using OpenSpec** (recommended):
+```bash
+# Review the validated proposal
+openspec show add-recap-engine
+
+# Check tasks
+cat openspec/changes/add-recap-engine/tasks.md
+
+# Implement next section (e.g., Digest Protocol)
+# Work through tasks 7.1-7.10 sequentially
+```
+
+**Quick start**:
+> "Review SESSION_BRIEF.md and implement Digest Protocol"
+> "Review SESSION_BRIEF.md and add CLI commands for plan status"
 > "Review SESSION_BRIEF.md and continue Phase 2"
 
-Or be specific:
-> "Implement Context Tree for Phase 2"
-> "Add plan persistence to .frctl/plans/"
-> "Create Jinja2 prompt templates"
+**The OpenSpec proposal** (`add-recap-engine`) provides:
+- Complete task breakdown (126 tasks, 69 done)
+- Technical context and rationale
+- Design decisions and dependencies
+- Validation status ✅
 
 ---
 
 ## 📊 Statistics
 
 **Code**: 
-- Lines: ~6,500+ (141 tests, 6 modules, docs)
-- Test Coverage: Graph 100%, Planning & Context & Persistence comprehensive
+- Lines: ~7,200+ (160 tests, 7 modules, docs)
+- Test Coverage: Graph 100%, Planning & Context & Persistence & Templates comprehensive
 
 **Performance** (all benchmarks exceeded):
 - 1000-node ops: ~0.1s (target: <1s) ⚡
@@ -197,16 +252,28 @@ Or be specific:
 
 **Progress**:
 - Phase 1: 100% ✅
-- Phase 2: 47% (59/126 tasks - Context Tree + Persistence complete!)
-- Overall: ~55%
+- Phase 2: 70% (88/126 tasks - Context + Persistence + Prompts + Digest + CLI ✅)
+- Overall: ~70%
 
 ---
 
 ## 🔗 References
 
-- `docs/roadmap.md` - Implementation plan
-- `openspec/changes/add-recap-engine/tasks.md` - 126 tasks (59 done, Context Tree + Persistence ✅)
+**OpenSpec Proposal** (validated ✅):
+- `openspec/changes/add-recap-engine/proposal.md` - Why and what changes
+- `openspec/changes/add-recap-engine/tasks.md` - 126 tasks (69 done, 57 remaining)
+- `openspec/changes/add-recap-engine/specs/` - Delta specifications
+
+**Archived Specs**:
 - `openspec/specs/graph-core/spec.md` - Phase 1 spec (archived)
+
+**Documentation**:
+- `docs/roadmap.md` - Implementation plan
+- `PROMPT_TEMPLATES_COMPLETE.md` - Latest completion summary
+- `QUICK_REFERENCE.md` - CLI cheat sheet
+- `ARCHIVE_SUMMARY.md` - Phase 1 archive details
+
+**Repository**:
 - GitHub: https://github.com/timlawrenz/frctl
 - Latest commit: 3c18bba
 

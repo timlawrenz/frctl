@@ -24,16 +24,16 @@
 
 ## 3. Prompt Engineering (frctl/llm/prompts/)
 
-- [ ] 3.1 Create Jinja2 prompt templates directory
-- [ ] 3.2 Implement atomicity check prompt template
-- [ ] 3.3 Implement goal decomposition prompt template
-- [ ] 3.4 Implement dependency inference prompt template
-- [ ] 3.5 Implement digest generation prompt template
-- [ ] 3.6 Add system prompts for Fractal V3 context
-- [ ] 3.7 Create prompt rendering utility
-- [ ] 3.8 Add few-shot examples for each prompt type
-- [ ] 3.9 Implement prompt versioning
-- [ ] 3.10 Add prompt validation and testing
+- [x] 3.1 Create Jinja2 prompt templates directory
+- [x] 3.2 Implement atomicity check prompt template
+- [x] 3.3 Implement goal decomposition prompt template
+- [x] 3.4 Implement dependency inference prompt template
+- [x] 3.5 Implement digest generation prompt template
+- [x] 3.6 Add system prompts for Fractal V3 context
+- [x] 3.7 Create prompt rendering utility
+- [x] 3.8 Add few-shot examples for each prompt type
+- [x] 3.9 Implement prompt versioning
+- [x] 3.10 Add prompt validation and testing
 
 ## 4. Goal Data Model (frctl/planning/)
 
@@ -76,16 +76,16 @@
 
 ## 7. Digest Protocol (frctl/planning/)
 
-- [ ] 7.1 Implement `Digest` class for compressed summaries
-- [ ] 7.2 Add digest generation from goal results
-- [ ] 7.3 Implement LLM-based digest creation
-- [ ] 7.4 Add digest validation (preserve key information)
-- [ ] 7.5 Implement digest aggregation (multiple children -> parent)
-- [ ] 7.6 Add digest metadata (compression ratio, fidelity)
-- [ ] 7.7 Create digest storage and retrieval
-- [ ] 7.8 Implement digest versioning
-- [ ] 7.9 Add digest quality metrics
-- [ ] 7.10 Create digest archive for completed plans
+- [x] 7.1 Implement `Digest` class for compressed summaries
+- [x] 7.2 Add digest generation from goal results
+- [x] 7.3 Implement LLM-based digest creation
+- [x] 7.4 Add digest validation (preserve key information)
+- [x] 7.5 Implement digest aggregation (multiple children -> parent)
+- [x] 7.6 Add digest metadata (compression ratio, fidelity)
+- [x] 7.7 Create digest storage and retrieval
+- [x] 7.8 Implement digest versioning
+- [x] 7.9 Add digest quality metrics
+- [x] 7.10 Create digest archive for completed plans
 
 ## 8. Plan Persistence (frctl/planning/)
 
@@ -104,13 +104,13 @@
 
 - [x] 9.1 Create `plan` command group using Click
 - [x] 9.2 Implement `frctl plan init <goal>` - Start planning session
-- [ ] 9.3 Implement `frctl plan status [plan-id]` - Show planning tree
-- [ ] 9.4 Implement `frctl plan continue <plan-id>` - Resume planning
-- [ ] 9.5 Implement `frctl plan review <node-id>` - Review goal details
-- [ ] 9.6 Implement `frctl plan export <plan-id>` - Export plan as JSON
-- [ ] 9.7 Implement `frctl plan visualize <plan-id>` - Generate tree diagram
-- [ ] 9.8 Implement `frctl plan list` - List all plans
-- [ ] 9.9 Implement `frctl plan delete <plan-id>` - Delete plan
+- [x] 9.3 Implement `frctl plan status [plan-id]` - Show planning tree
+- [x] 9.4 Implement `frctl plan continue <plan-id>` - Resume planning
+- [x] 9.5 Implement `frctl plan review <node-id>` - Review goal details
+- [x] 9.6 Implement `frctl plan export <plan-id>` - Export plan as JSON
+- [x] 9.7 Implement `frctl plan visualize <plan-id>` - Generate tree diagram
+- [x] 9.8 Implement `frctl plan list` - List all plans
+- [x] 9.9 Implement `frctl plan delete <plan-id>` - Delete plan
 - [x] 9.10 Add `--provider` flag for LLM selection
 
 ## 10. Configuration Management

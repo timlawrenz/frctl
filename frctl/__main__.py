@@ -301,6 +301,365 @@ def plan_init(description: str, model: str):
         raise SystemExit(1)
 
 
+@plan.command("list")
+@click.option("--status", type=click.Choice(["in_progress", "complete", "failed"]), help="Filter by status")
+def plan_list(status: str):
+    """List all planning sessions"""
+    from frctl.planning.persistence import PlanStore
+    
+    store = PlanStore()
+    plans = store.list_plans(status=status)
+    
+    if not plans:
+        click.echo("No plans found.")
+        if status:
+            click.echo(f"  (filtered by status: {status})")
+        return
+    
+    click.echo(f"\n📋 Plans ({len(plans)}):")
+    if status:
+        click.echo(f"   Filtered by: {status}")
+    click.echo()
+    
+    for plan_meta in plans:
+        status_icon = {
+            "in_progress": "⏳",
+            "complete": "✅",
+            "failed": "❌",
+        }.get(plan_meta["status"], "❓")
+        
+        click.echo(f"  {status_icon} {plan_meta['id']}")
+        click.echo(f"     Goal: {plan_meta['description']}")
+        click.echo(f"     Status: {plan_meta['status']}")
+        click.echo(f"     Created: {plan_meta['created_at']}")
+        click.echo(f"     Depth: {plan_meta['max_depth']}, Goals: {plan_meta['goal_count']}")
+        click.echo()
+
+
+@plan.command("status")
+@click.argument("plan_id", required=False)
+def plan_status(plan_id: str):
+    """Show planning tree structure"""
+    from frctl.planning.persistence import PlanStore
+    
+    store = PlanStore()
+    
+    # If no plan_id, try to find most recent
+    if not plan_id:
+        plans = store.list_plans(status="in_progress")
+        if not plans:
+            click.echo("No in-progress plans found. Use: frctl plan list")
+            return
+        plan_id = plans[0]["id"]
+        click.echo(f"Using most recent plan: {plan_id}\n")
+    
+    # Load plan
+    plan = store.load(plan_id)
+    if not plan:
+        click.echo(f"Plan '{plan_id}' not found.")
+        return
+    
+    # Show header
+    root_goal = plan.get_goal(plan.root_goal_id)
+    click.echo(f"\n📊 Plan: {plan.id}")
+    click.echo(f"   Goal: {root_goal.description}")
+    click.echo(f"   Status: {plan.status}")
+    click.echo(f"   Created: {plan.created_at.strftime('%Y-%m-%d %H:%M')}")
+    click.echo()
+    
+    # Show tree
+    def print_goal_tree(goal, plan, indent=0):
+        """Recursively print goal tree"""
+        prefix = "  " * indent
+        
+        # Status icon
+        status_icon = {
+            "pending": "⏸️",
+            "decomposing": "🔄",
+            "atomic": "✅",
+            "complete": "✅",
+            "failed": "❌",
+        }.get(goal.status.value, "❓")
+        
+        # Print goal
+        click.echo(f"{prefix}{status_icon} {goal.id}")
+        click.echo(f"{prefix}   {goal.description[:60]}...")
+        
+        # Print digest if available
+        if goal.digest:
+            click.echo(f"{prefix}   💭 {goal.digest[:50]}...")
+        
+        # Print children
+        for child_id in goal.child_ids:
+            child = plan.get_goal(child_id)
+            if child:
+                print_goal_tree(child, plan, indent + 1)
+    
+    click.echo("Goal Tree:")
+    print_goal_tree(root_goal, plan)
+    
+    # Show statistics
+    stats = plan.get_statistics()
+    click.echo(f"\n📈 Statistics:")
+    click.echo(f"   Total goals: {stats['total_goals']}")
+    click.echo(f"   Atomic goals: {stats['atomic_goals']}")
+    click.echo(f"   Max depth: {stats['max_depth']}")
+    click.echo(f"   Total tokens: {stats['total_tokens']}")
+    click.echo(f"   Complete: {stats['is_complete']}")
+
+
+@plan.command("continue")
+@click.argument("plan_id", required=False)
+@click.option("--model", default=None, help="LLM model to use")
+def plan_continue(plan_id: str, model: str):
+    """Resume planning session"""
+    from frctl.planning.persistence import PlanStore
+    
+    store = PlanStore()
+    
+    # If no plan_id, try to find most recent in-progress
+    if not plan_id:
+        plans = store.list_plans(status="in_progress")
+        if not plans:
+            click.echo("No in-progress plans found.")
+            return
+        plan_id = plans[0]["id"]
+        click.echo(f"Resuming most recent plan: {plan_id}\n")
+    
+    # Load plan
+    plan = store.load(plan_id)
+    if not plan:
+        click.echo(f"Plan '{plan_id}' not found.")
+        return
+    
+    root_goal = plan.get_goal(plan.root_goal_id)
+    click.echo(f"\n🔄 Resuming planning session...")
+    click.echo(f"   Plan: {plan.id}")
+    click.echo(f"   Goal: {root_goal.description}")
+    if model:
+        click.echo(f"   Model: {model}")
+    click.echo()
+    
+    try:
+        # Get LLM provider
+        from frctl.llm.provider import get_provider
+        llm = get_provider(model=model)
+        
+        # Create planning engine and load existing plan
+        engine = PlanningEngine(llm_provider=llm)
+        
+        # Continue planning (this would need engine.continue_planning method)
+        click.echo("⚠️  Plan continuation not yet implemented in engine")
+        click.echo("   Use 'frctl plan status' to view current state")
+        
+    except Exception as e:
+        click.echo(f"\n❌ Failed to resume: {e}", err=True)
+        raise SystemExit(1)
+
+
+@plan.command("review")
+@click.argument("goal_id")
+@click.option("--plan-id", help="Plan ID (defaults to most recent)")
+def plan_review(goal_id: str, plan_id: str):
+    """Review goal details"""
+    from frctl.planning.persistence import PlanStore
+    
+    store = PlanStore()
+    
+    # Find plan
+    if not plan_id:
+        plans = store.list_plans()
+        if not plans:
+            click.echo("No plans found.")
+            return
+        plan_id = plans[0]["id"]
+    
+    # Load plan
+    plan = store.load(plan_id)
+    if not plan:
+        click.echo(f"Plan '{plan_id}' not found.")
+        return
+    
+    # Find goal
+    goal = plan.get_goal(goal_id)
+    if not goal:
+        click.echo(f"Goal '{goal_id}' not found in plan '{plan_id}'.")
+        return
+    
+    # Display goal details
+    click.echo(f"\n🎯 Goal: {goal.id}")
+    click.echo(f"   Description: {goal.description}")
+    click.echo(f"   Status: {goal.status.value}")
+    click.echo(f"   Depth: {goal.depth}")
+    click.echo(f"   Created: {goal.created_at.strftime('%Y-%m-%d %H:%M')}")
+    
+    if goal.parent_id:
+        parent = plan.get_goal(goal.parent_id)
+        if parent:
+            click.echo(f"\n👆 Parent: {goal.parent_id}")
+            click.echo(f"   {parent.description[:60]}...")
+    
+    if goal.child_ids:
+        click.echo(f"\n👇 Children ({len(goal.child_ids)}):")
+        for child_id in goal.child_ids:
+            child = plan.get_goal(child_id)
+            if child:
+                status = child.status.value
+                click.echo(f"   - {child_id} ({status})")
+                click.echo(f"     {child.description[:60]}...")
+    
+    if goal.reasoning:
+        click.echo(f"\n💭 Reasoning:")
+        click.echo(f"   {goal.reasoning}")
+    
+    if goal.digest:
+        click.echo(f"\n📝 Digest:")
+        click.echo(f"   {goal.digest}")
+    
+    if goal.dependencies:
+        click.echo(f"\n🔗 Dependencies:")
+        for dep in goal.dependencies:
+            click.echo(f"   - {dep}")
+    
+    click.echo(f"\n📊 Metrics:")
+    click.echo(f"   Tokens used: {goal.tokens_used}")
+
+
+@plan.command("export")
+@click.argument("plan_id")
+@click.argument("output", type=click.Path(), required=False)
+def plan_export(plan_id: str, output: str):
+    """Export plan as JSON"""
+    from frctl.planning.persistence import PlanStore
+    import json
+    
+    store = PlanStore()
+    plan = store.load(plan_id)
+    
+    if not plan:
+        click.echo(f"Plan '{plan_id}' not found.")
+        return
+    
+    plan_json = plan.model_dump_json(indent=2)
+    
+    if output:
+        with open(output, 'w') as f:
+            f.write(plan_json)
+        click.echo(f"✓ Exported plan to {output}")
+    else:
+        click.echo(plan_json)
+
+
+@plan.command("visualize")
+@click.argument("plan_id")
+@click.option("--format", type=click.Choice(["ascii", "mermaid"]), default="ascii", help="Output format")
+def plan_visualize(plan_id: str, format: str):
+    """Generate tree visualization"""
+    from frctl.planning.persistence import PlanStore
+    
+    store = PlanStore()
+    plan = store.load(plan_id)
+    
+    if not plan:
+        click.echo(f"Plan '{plan_id}' not found.")
+        return
+    
+    if format == "mermaid":
+        # Generate Mermaid diagram
+        click.echo("```mermaid")
+        click.echo("graph TD")
+        
+        def add_node_mermaid(goal, plan):
+            status_style = {
+                "pending": ":::pending",
+                "decomposing": ":::decomposing",
+                "atomic": ":::atomic",
+                "complete": ":::complete",
+                "failed": ":::failed",
+            }.get(goal.status.value, "")
+            
+            label = goal.description[:40].replace('"', "'")
+            click.echo(f'    {goal.id}["{label}"]{status_style}')
+            
+            for child_id in goal.child_ids:
+                child = plan.get_goal(child_id)
+                if child:
+                    click.echo(f'    {goal.id} --> {child_id}')
+                    add_node_mermaid(child, plan)
+        
+        root = plan.get_goal(plan.root_goal_id)
+        add_node_mermaid(root, plan)
+        
+        click.echo("    classDef atomic fill:#90EE90")
+        click.echo("    classDef complete fill:#90EE90")
+        click.echo("    classDef pending fill:#FFE4B5")
+        click.echo("    classDef failed fill:#FFB6C1")
+        click.echo("```")
+    else:
+        # ASCII tree
+        def print_ascii_tree(goal, plan, prefix="", is_last=True):
+            connector = "└── " if is_last else "├── "
+            status = goal.status.value[0].upper()
+            click.echo(f"{prefix}{connector}[{status}] {goal.description[:50]}")
+            
+            children = [plan.get_goal(cid) for cid in goal.child_ids if plan.get_goal(cid)]
+            for i, child in enumerate(children):
+                extension = "    " if is_last else "│   "
+                print_ascii_tree(child, plan, prefix + extension, i == len(children) - 1)
+        
+        root = plan.get_goal(plan.root_goal_id)
+        click.echo(f"\nPlan: {plan.id}")
+        print_ascii_tree(root, plan)
+
+
+@plan.command("delete")
+@click.argument("plan_id")
+@click.option("--archive/--no-archive", default=True, help="Archive before deleting")
+@click.option("--force", is_flag=True, help="Skip confirmation")
+def plan_delete(plan_id: str, archive: bool, force: bool):
+    """Delete a plan"""
+    from frctl.planning.persistence import PlanStore
+    
+    store = PlanStore()
+    
+    # Check if plan exists
+    plan = store.load(plan_id)
+    if not plan:
+        click.echo(f"Plan '{plan_id}' not found.")
+        return
+    
+    # Confirm deletion
+    if not force:
+        root_goal = plan.get_goal(plan.root_goal_id)
+        click.echo(f"\nPlan: {plan.id}")
+        click.echo(f"Goal: {root_goal.description}")
+        click.echo(f"Status: {plan.status}")
+        
+        if archive:
+            click.echo("\n⚠️  This will archive and delete the plan.")
+        else:
+            click.echo("\n⚠️  This will permanently delete the plan (no archive).")
+        
+        if not click.confirm("Continue?"):
+            click.echo("Cancelled.")
+            return
+    
+    # Delete
+    try:
+        success = store.delete(plan_id, archive=archive)
+        if success:
+            if archive:
+                click.echo(f"✓ Plan archived and deleted: {plan_id}")
+            else:
+                click.echo(f"✓ Plan deleted: {plan_id}")
+        else:
+            click.echo(f"❌ Failed to delete plan: {plan_id}")
+            raise SystemExit(1)
+    except Exception as e:
+        click.echo(f"❌ Error deleting plan: {e}", err=True)
+        raise SystemExit(1)
+
+
 # Delete duplicate section below
 @cli.command()
 def hello():

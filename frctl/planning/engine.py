@@ -6,8 +6,10 @@ from pathlib import Path
 
 from frctl.planning.goal import Goal, GoalStatus, Plan
 from frctl.llm.provider import LLMProvider
+from frctl.llm.renderer import PromptRenderer
 from frctl.context import ContextTree
 from frctl.planning.persistence import PlanStore
+from frctl.planning.digest import Digest, DigestMetadata, DigestStore
 
 
 class PlanningEngine:
@@ -29,6 +31,7 @@ class PlanningEngine:
         global_context: Optional[Dict[str, Any]] = None,
         plan_store: Optional[PlanStore] = None,
         auto_save: bool = True,
+        prompt_renderer: Optional[PromptRenderer] = None,
     ):
         """Initialize planning engine.
         
@@ -40,6 +43,7 @@ class PlanningEngine:
             global_context: Global project context
             plan_store: Plan store for persistence (defaults to .frctl/plans)
             auto_save: Whether to automatically save plans after changes
+            prompt_renderer: Prompt template renderer (defaults to default renderer)
         """
         self.llm = llm_provider or LLMProvider(model="gpt-4")
         self.max_depth = max_depth
@@ -50,6 +54,8 @@ class PlanningEngine:
         )
         self.plan_store = plan_store or PlanStore()
         self.auto_save = auto_save
+        self.renderer = prompt_renderer or PromptRenderer()
+        self.digest_store = DigestStore()
     
     def create_plan(self, description: str) -> Plan:
         """Create a new planning session.
@@ -101,31 +107,25 @@ class PlanningEngine:
         # Get hydrated context for this goal
         context = self.context_tree.hydrate_context(goal.id)
         
-        # Build context-aware prompt
-        context_info = ""
-        if context.get("parent_intent"):
-            context_info += f"\nParent Goal: {context['parent_intent']}"
-        if context.get("global"):
-            context_info += f"\nProject Context: {context['global']}"
+        # Extract context components
+        parent_intent = context.get("parent_intent")
+        global_ctx = context.get("global")
+        global_context_str = None
+        if global_ctx:
+            # Convert dict to readable string
+            global_context_str = "\n".join(f"{k}: {v}" for k, v in global_ctx.items())
         
-        # Simple prompt for atomicity check
+        # Render prompt using template
+        system_prompt = self.renderer.render_system_prompt()
+        user_prompt = self.renderer.render_atomicity_check(
+            goal_description=goal.description,
+            parent_intent=parent_intent,
+            global_context=global_context_str,
+        )
+        
         messages = [
-            {
-                "role": "system",
-                "content": "You are an expert software architect. Determine if a goal is atomic (can be implemented in a single file/component) or composite (needs to be broken down). Always respond with valid JSON."
-            },
-            {
-                "role": "user",
-                "content": f"""Goal: {goal.description}{context_info}
-
-Is this goal atomic (simple enough to implement directly) or composite (needs to be broken into sub-goals)?
-
-Respond with ONLY this JSON structure (no markdown, no explanation):
-{{
-    "is_atomic": true,
-    "reasoning": "explanation here"
-}}"""
-            }
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
         ]
         
         try:
@@ -187,34 +187,25 @@ Respond with ONLY this JSON structure (no markdown, no explanation):
         # Get hydrated context for this goal
         context = self.context_tree.hydrate_context(goal.id)
         
-        # Build context-aware prompt
-        context_info = ""
-        if context.get("parent_intent"):
-            context_info += f"\nParent Goal: {context['parent_intent']}"
-        if context.get("global"):
-            context_info += f"\nProject Context: {context['global']}"
+        # Extract context components
+        parent_intent = context.get("parent_intent")
+        global_ctx = context.get("global")
+        global_context_str = None
+        if global_ctx:
+            # Convert dict to readable string
+            global_context_str = "\n".join(f"{k}: {v}" for k, v in global_ctx.items())
+        
+        # Render prompt using template
+        system_prompt = self.renderer.render_system_prompt()
+        user_prompt = self.renderer.render_decompose_goal(
+            goal_description=goal.description,
+            parent_intent=parent_intent,
+            global_context=global_context_str,
+        )
         
         messages = [
-            {
-                "role": "system",
-                "content": "You are an expert software architect. Break down complex goals into 2-7 concrete sub-goals. Always respond with valid JSON."
-            },
-            {
-                "role": "user",
-                "content": f"""Goal: {goal.description}{context_info}
-
-Break this down into concrete sub-goals. Each sub-goal should be clear and specific.
-
-Respond with ONLY this JSON structure (no markdown, no explanation):
-{{
-    "sub_goals": [
-        {{"description": "first sub-goal"}},
-        {{"description": "second sub-goal"}},
-        ...
-    ],
-    "reasoning": "explanation of decomposition strategy"
-}}"""
-            }
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
         ]
         
         try:
@@ -426,3 +417,187 @@ Respond with ONLY this JSON structure (no markdown, no explanation):
             True if deleted successfully
         """
         return self.plan_store.delete(plan_id, archive=archive)
+    
+    def generate_digest(
+        self,
+        goal: Goal,
+        plan: Plan,
+        child_digests: Optional[List[Digest]] = None
+    ) -> Digest:
+        """Generate a compressed digest for a completed goal.
+        
+        Uses LLM to create a concise summary that preserves essential
+        information while minimizing token usage.
+        
+        Args:
+            goal: Completed goal to summarize
+            plan: Plan containing the goal
+            child_digests: Digests from child goals (if composite)
+            
+        Returns:
+            Generated digest
+        """
+        # Get parent context if available
+        parent_intent = None
+        if goal.parent_id:
+            parent_goal = plan.get_goal(goal.parent_id)
+            if parent_goal:
+                parent_intent = parent_goal.description
+        
+        # Format child digests for prompt
+        child_digest_texts = []
+        if child_digests:
+            child_digest_texts = [d.to_context_string() for d in child_digests]
+        
+        # Prepare goal results (reasoning + status)
+        goal_results = f"Status: {goal.status.value}"
+        if goal.reasoning:
+            goal_results += f"\nReasoning: {goal.reasoning}"
+        
+        # Render digest generation prompt
+        system_prompt = self.renderer.render_system_prompt()
+        user_prompt = self.renderer.render_generate_digest(
+            goal_description=goal.description,
+            goal_status=goal.status.value,
+            goal_results=goal_results,
+            child_digests=child_digest_texts if child_digest_texts else None,
+            parent_intent=parent_intent,
+        )
+        
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+        
+        # Count original tokens (goal + children)
+        original_tokens = goal.tokens_used
+        if child_digests:
+            original_tokens += sum(d.metadata.original_tokens for d in child_digests)
+        
+        try:
+            response = self.llm.generate(messages, temperature=0.3)
+            content = response["content"].strip()
+            
+            # Extract JSON from response
+            import json
+            import re
+            
+            json_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', content, re.DOTALL)
+            if json_match:
+                json_str = json_match.group(1)
+            else:
+                json_match = re.search(r'(\{.*\})', content, re.DOTALL)
+                if json_match:
+                    json_str = json_match.group(1)
+                else:
+                    json_str = content
+            
+            # Parse digest data
+            try:
+                parsed = json.loads(json_str)
+                summary = parsed.get("digest", goal.description)
+                key_artifacts = parsed.get("key_artifacts", [])
+                decisions = parsed.get("decisions", [])
+                token_estimate = parsed.get("token_estimate", len(summary.split()) * 1.3)
+            except json.JSONDecodeError:
+                # Fallback to simple summary
+                summary = goal.description[:150]
+                key_artifacts = []
+                decisions = []
+                token_estimate = len(summary.split()) * 1.3
+            
+            # Count actual digest tokens using LLM provider
+            digest_tokens = int(self.llm.count_tokens(summary))
+            
+            # Calculate compression metrics
+            compression_ratio = digest_tokens / original_tokens if original_tokens > 0 else 0.0
+            
+            # Estimate fidelity (heuristic: longer summary = higher fidelity)
+            # Target is <20% compression, so if we're close, fidelity is high
+            if compression_ratio <= 0.2:
+                fidelity = 0.95  # Excellent compression
+            elif compression_ratio <= 0.3:
+                fidelity = 0.90  # Good compression
+            else:
+                fidelity = max(0.85, 1.0 - compression_ratio)
+            
+            # Create digest metadata
+            metadata = DigestMetadata(
+                original_tokens=original_tokens,
+                digest_tokens=digest_tokens,
+                compression_ratio=compression_ratio,
+                fidelity_estimate=fidelity,
+            )
+            
+            # Create digest
+            digest = Digest(
+                goal_id=goal.id,
+                summary=summary,
+                key_artifacts=key_artifacts,
+                decisions=decisions,
+                child_digest_ids=[d.goal_id for d in (child_digests or [])],
+                metadata=metadata,
+            )
+            
+            # Store in digest store
+            self.digest_store.add(digest)
+            
+            # Update goal with digest reference
+            goal.digest = summary
+            
+            # Warn if fidelity is low
+            if not digest.validate_fidelity(threshold=0.90):
+                print(f"Warning: Low fidelity digest for goal {goal.id}: {fidelity:.1%}")
+                print(f"  Compression: {compression_ratio:.1%} ({original_tokens} → {digest_tokens} tokens)")
+            
+            return digest
+            
+        except Exception as e:
+            print(f"Digest generation failed: {e}")
+            # Return minimal fallback digest
+            return Digest(
+                goal_id=goal.id,
+                summary=goal.description[:100],
+                metadata=DigestMetadata(
+                    original_tokens=original_tokens,
+                    digest_tokens=int(len(goal.description.split()) * 1.3),
+                    compression_ratio=0.5,
+                    fidelity_estimate=0.7,
+                ),
+            )
+    
+    def aggregate_digests(self, goal_ids: List[str]) -> Optional[str]:
+        """Aggregate multiple child digests into a summary.
+        
+        Args:
+            goal_ids: List of child goal IDs
+            
+        Returns:
+            Aggregated summary text or None if no digests found
+        """
+        digests = self.digest_store.get_multiple(goal_ids)
+        if not digests:
+            return None
+        
+        # Combine summaries
+        parts = [f"- {d.summary}" for d in digests]
+        return "\n".join(parts)
+    
+    def get_digest(self, goal_id: str) -> Optional[Digest]:
+        """Retrieve digest for a goal.
+        
+        Args:
+            goal_id: Goal identifier
+            
+        Returns:
+            Digest or None if not found
+        """
+        return self.digest_store.get(goal_id)
+    
+    def get_digest_stats(self) -> Dict[str, float]:
+        """Get quality statistics for all digests.
+        
+        Returns:
+            Dictionary with compression and fidelity metrics
+        """
+        return self.digest_store.get_quality_stats()

@@ -1,0 +1,43 @@
+You are an expert software architect analyzing goals for the Fractal V3 planning system.
+
+Your task is to determine if a goal is **atomic** or **composite**:
+- **Atomic**: Can be implemented in a single file/component (~50-200 lines of code)
+- **Composite**: Needs to be broken down into multiple sub-goals
+
+## Goal to Analyze
+
+{{ goal_description }}
+{%- if parent_intent %}
+
+## Parent Context
+
+Parent Goal: {{ parent_intent }}
+{%- endif %}
+{%- if global_context %}
+
+## Project Context
+
+{{ global_context }}
+{%- endif %}
+
+## Decision Criteria
+
+Consider:
+1. **Scope**: Can this be done in one focused implementation?
+2. **Complexity**: Does it involve multiple systems/concerns?
+3. **Dependencies**: Does it require other goals to be completed first?
+4. **Clarity**: Is the goal specific enough to implement directly?
+
+## Response Format
+
+Respond with ONLY this JSON structure (no markdown, no explanation):
+```json
+{
+    "is_atomic": true,
+    "reasoning": "Brief explanation of your decision (1-2 sentences)"
+}
+```
+
+Examples:
+- Atomic: "Add user authentication with JWT tokens" → true (single auth module)
+- Composite: "Build complete user management system" → false (needs auth, profiles, permissions, etc.)
