@@ -1,9 +1,9 @@
 # Frctl Development - Session Brief
 
-**Last Updated**: 2025-11-30 17:33 UTC  
+**Last Updated**: 2025-11-30 17:50 UTC  
 **Repository**: github.com:timlawrenz/frctl  
-**Branch**: main (commit: 993ec42)
-**Status**: ✅ Phase 1 Complete, Phase 2 in progress (~87% complete)
+**Branch**: main
+**Status**: ✅ Phase 1 Complete, Phase 2 in progress (~89% complete)
 **OpenSpec Proposal**: `add-recap-engine` (validated ✅)
 
 ---
@@ -17,10 +17,10 @@
 - ✅ Archived to openspec/specs/graph-core
 - ✅ **Committed and pushed** (commit: a8ea52b)
 
-### Phase 2: ReCAP Planning Engine ⚠️ IN PROGRESS (87% - 109/126 tasks)
+### Phase 2: ReCAP Planning Engine ⚠️ IN PROGRESS (89% - 112/126 tasks)
 **OpenSpec Proposal**: `openspec/changes/add-recap-engine/` (validated ✅)
 
-**Completed Components** (109 tasks ✅):
+**Completed Components** (112 tasks ✅):
 - ✅ **Setup & Dependencies** (6/6) - LiteLLM, Jinja2, package structure
 - ✅ **LLM Provider** (10/10) - Full LiteLLM wrapper with token counting & cost tracking
 - ✅ **Prompt Templates** (10/10) - Professional Jinja2 system with 5 templates
@@ -33,9 +33,9 @@
 - ✅ **Configuration** (10/10) - Complete config system with 100+ LLM providers 🎉
 - ✅ **Testing** (9/10) - Mock provider, atomicity tests, all core tests passing
 
-**In Progress** (17 tasks remaining):
+**In Progress** (14 tasks remaining):
 - ⚠️ **Testing** (1/10) - Need CLI integration & multi-provider e2e tests
-- ⚠️ **Documentation** (6/10) - Core docs done, need prompt guide & examples
+- ⚠️ **Documentation** (3/10) - Core docs done, need examples & diagrams
 - ⚠️ **Validation** (0/10) - Final validation and polish
 
 **Test Coverage**: 244 total tests passing (100% pass rate)
@@ -50,11 +50,11 @@
 
 ## 🎉 Latest Achievements (This Session)
 
-1. **✅ Mock LLM Provider Complete** - MockLLMProvider for deterministic testing 🎉
-2. **✅ Atomicity Detection Tests** - 6 comprehensive unit tests for LLM-based atomicity
-3. **✅ Task Audit Complete** - Verified and updated all completed tasks
-4. **✅ 14 New Tests** - All passing (244 total passing)
-5. **✅ 18 Tasks Complete** - From 91/126 to 109/126 (72% → 87%)
+1. **✅ Prompt Engineering Guide** - Complete 500-line guide on customizing prompts 🎉
+2. **✅ Plan JSON Schema Docs** - Full reference for plan persistence format
+3. **✅ Troubleshooting Guide** - Comprehensive guide including local model setup
+4. **✅ 3 Documentation Tasks** - From 109/126 to 112/126 (87% → 89%)
+5. **✅ All Core Documentation** - Users can now understand and use the entire system
 
 ---
 
@@ -250,8 +250,8 @@ cat openspec/changes/add-recap-engine/tasks.md
 
 **Progress**:
 - Phase 1: 100% ✅
-- Phase 2: 87% (109/126 tasks - All critical components complete! ✅)
-- Overall: ~87%
+- Phase 2: 89% (112/126 tasks - All critical components complete! ✅)
+- Overall: ~89%
 
 ---
 

@@ -144,13 +144,13 @@
 - [x] 12.1 Document ReCAP algorithm in technical guide
 - [x] 12.2 Create planning workflow tutorial
 - [x] 12.3 Document LLM provider configuration (all supported providers)
-- [ ] 12.4 Add prompt engineering guide
+- [x] 12.4 Add prompt engineering guide
 - [x] 12.5 Document context management principles
 - [ ] 12.6 Create planning examples with different providers
 - [x] 12.7 Add CLI command reference
-- [ ] 12.8 Document plan JSON schema
+- [x] 12.8 Document plan JSON schema
 - [ ] 12.9 Create architecture diagrams
-- [ ] 12.10 Add troubleshooting guide (including local model setup)
+- [x] 12.10 Add troubleshooting guide (including local model setup)
 
 ## 13. Validation & Polish
 
