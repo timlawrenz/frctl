@@ -1,5 +1,6 @@
 """Main entry point for the frctl CLI."""
 import click
+import os
 from pathlib import Path
 
 from frctl.graph import FederatedGraph, Node, NodeType, Edge, EdgeType
@@ -657,6 +658,150 @@ def plan_delete(plan_id: str, archive: bool, force: bool):
             raise SystemExit(1)
     except Exception as e:
         click.echo(f"❌ Error deleting plan: {e}", err=True)
+        raise SystemExit(1)
+
+
+@cli.group()
+def config():
+    """Manage frctl configuration"""
+    pass
+
+
+@config.command("init")
+@click.option("--global", "is_global", is_flag=True, help="Create global config (~/.frctl/)")
+@click.option("--force", is_flag=True, help="Overwrite existing config")
+def config_init(is_global: bool, force: bool):
+    """Initialize configuration file"""
+    from frctl.config import FrctlConfig
+    from pathlib import Path
+    import shutil
+    
+    # Determine target path
+    if is_global:
+        config_path = Path.home() / ".frctl" / "config.toml"
+    else:
+        config_path = Path.cwd() / ".frctl" / "config.toml"
+    
+    # Check if already exists
+    if config_path.exists() and not force:
+        click.echo(f"Configuration already exists at {config_path}")
+        click.echo("Use --force to overwrite.")
+        return
+    
+    # Copy template
+    template_path = Path(__file__).parent / "config_template.toml"
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy(template_path, config_path)
+    
+    click.echo(f"✓ Created configuration at {config_path}")
+    click.echo(f"\nEdit the file to configure:")
+    click.echo(f"  - LLM provider and model")
+    click.echo(f"  - Planning preferences")
+    click.echo(f"\nOr set environment variables:")
+    click.echo(f"  - FRCTL_LLM_MODEL=gpt-4")
+    click.echo(f"  - OPENAI_API_KEY=sk-...")
+
+
+@config.command("show")
+@click.option("--all", "show_all", is_flag=True, help="Show all config sources")
+def config_show(show_all: bool):
+    """Display current configuration"""
+    from frctl.config import get_config
+    from pathlib import Path
+    import json
+    
+    try:
+        config = get_config()
+        
+        click.echo("\n📋 Current Configuration\n")
+        
+        click.echo("🤖 LLM Settings:")
+        click.echo(f"   Model:       {config.llm.model}")
+        click.echo(f"   Temperature: {config.llm.temperature}")
+        click.echo(f"   Max Tokens:  {config.llm.max_tokens}")
+        click.echo(f"   Retries:     {config.llm.num_retries}")
+        click.echo(f"   Verbose:     {config.llm.verbose}")
+        if config.llm.fallback_models:
+            click.echo(f"   Fallbacks:   {', '.join(config.llm.fallback_models)}")
+        
+        click.echo("\n📐 Planning Settings:")
+        click.echo(f"   Max Depth:         {config.planning.max_depth}")
+        click.echo(f"   Auto Decompose:    {config.planning.auto_decompose}")
+        click.echo(f"   Context Window:    {config.planning.context_window_size:,} tokens")
+        
+        if show_all:
+            click.echo("\n📁 Config Sources:")
+            user_config = Path.home() / ".frctl" / "config.toml"
+            project_config = Path.cwd() / ".frctl" / "config.toml"
+            
+            if user_config.exists():
+                click.echo(f"   ✓ User:    {user_config}")
+            else:
+                click.echo(f"   ✗ User:    {user_config} (not found)")
+            
+            if project_config.exists():
+                click.echo(f"   ✓ Project: {project_config}")
+            else:
+                click.echo(f"   ✗ Project: {project_config} (not found)")
+            
+            click.echo(f"\n   Environment overrides active: {any([
+                os.getenv('FRCTL_LLM_MODEL'),
+                os.getenv('FRCTL_LLM_TEMPERATURE'),
+                os.getenv('FRCTL_LLM_MAX_TOKENS'),
+            ])}")
+        
+        click.echo()
+        
+    except Exception as e:
+        click.echo(f"❌ Error loading configuration: {e}", err=True)
+        raise SystemExit(1)
+
+
+@config.command("validate")
+def config_validate():
+    """Validate configuration"""
+    from frctl.config import get_config, ConfigurationError
+    
+    try:
+        config = get_config()
+        config.validate()
+        click.echo("✓ Configuration is valid")
+    except ConfigurationError as e:
+        click.echo(f"❌ Configuration error: {e}", err=True)
+        raise SystemExit(1)
+    except Exception as e:
+        click.echo(f"❌ Error validating configuration: {e}", err=True)
+        raise SystemExit(1)
+
+
+@config.command("test")
+@click.option("--model", help="Override model for test")
+def config_test(model: str):
+    """Test LLM provider configuration"""
+    from frctl.llm.provider import get_provider
+    
+    try:
+        click.echo("🔌 Testing LLM provider connection...\n")
+        
+        provider = get_provider(model=model)
+        click.echo(f"Model: {provider.model}")
+        click.echo(f"Testing with simple prompt...\n")
+        
+        response = provider.generate([
+            {"role": "user", "content": "Say 'Configuration test successful!' and nothing else."}
+        ])
+        
+        click.echo(f"✓ Response: {response['content']}")
+        click.echo(f"✓ Tokens: {response['usage']['total_tokens']}")
+        click.echo(f"✓ Cost: ${response['cost']:.4f}")
+        click.echo("\n✅ Provider connection successful!")
+        
+    except Exception as e:
+        click.echo(f"\n❌ Provider test failed: {e}", err=True)
+        click.echo("\nTroubleshooting:")
+        click.echo("  1. Check API key is set (e.g., OPENAI_API_KEY)")
+        click.echo("  2. Verify model name is correct")
+        click.echo("  3. Check network connectivity")
         raise SystemExit(1)
 
 

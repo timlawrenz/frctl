@@ -1,0 +1,60 @@
+# Frctl Configuration
+# This is the default configuration template for frctl.
+# Copy this to .frctl/config.toml in your project directory or
+# ~/.frctl/config.toml for user-level defaults.
+
+[llm]
+# LLM Model Configuration
+# Supported models include:
+# - OpenAI: "gpt-4", "gpt-4-turbo", "gpt-3.5-turbo"
+# - Anthropic: "claude-3-5-sonnet-20241022", "claude-3-opus-20240229"
+# - Google: "gemini/gemini-1.5-pro", "gemini/gemini-1.5-flash"
+# - Cohere: "command-r-plus", "command-r"
+# - Local: "ollama/codellama", "ollama/mistral", "vllm/mistral-7b"
+# - See https://docs.litellm.ai/docs/providers for full list
+model = "gpt-4"
+
+# Temperature for sampling (0.0 = deterministic, 2.0 = very random)
+temperature = 0.7
+
+# Maximum tokens to generate per request
+max_tokens = 2000
+
+# Number of retries on API failures
+num_retries = 3
+
+# Fallback models if primary fails (optional)
+# Example: fallback_models = ["claude-3-5-sonnet-20241022", "gpt-3.5-turbo"]
+fallback_models = []
+
+# Enable verbose logging for transparency
+verbose = true
+
+[planning]
+# Planning Engine Configuration
+
+# Maximum planning depth (prevents infinite recursion)
+max_depth = 10
+
+# Auto-decompose goals without prompting (default: false for safety)
+auto_decompose = false
+
+# Context window size in tokens (model-dependent)
+# - GPT-4 Turbo: 128000
+# - Claude 3.5 Sonnet: 200000
+# - Gemini 1.5 Pro: 1000000
+context_window_size = 128000
+
+# API Keys (alternatively set via environment variables)
+# DO NOT commit API keys to version control!
+# Recommended: Use environment variables instead:
+#   - OPENAI_API_KEY
+#   - ANTHROPIC_API_KEY
+#   - GEMINI_API_KEY
+#   - COHERE_API_KEY
+#   - etc.
+
+# Example for local models (no API key needed):
+# [llm]
+# model = "ollama/codellama"
+# # No API key needed for local models!

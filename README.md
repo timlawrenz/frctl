@@ -32,6 +32,46 @@ cd frctl
 pip install -e ".[dev]"
 ```
 
+### Configuration
+
+Set up your LLM provider:
+
+```bash
+# Initialize configuration
+frctl config init
+
+# Set API key (choose one)
+export OPENAI_API_KEY=sk-...
+export ANTHROPIC_API_KEY=sk-ant-...
+export GEMINI_API_KEY=...
+
+# Test connection
+frctl config test
+```
+
+For more configuration options, see [Configuration Guide](./docs/guides/configuration.md).
+
+### Planning Workflow
+
+```bash
+# Start a new planning session
+frctl plan init "Build a microservices API"
+
+# The planning engine will:
+# 1. Recursively decompose your goal into atomic tasks
+# 2. Identify dependencies between tasks
+# 3. Generate a complete architectural plan
+
+# View the plan
+frctl plan status <plan-id>
+
+# Visualize as tree
+frctl plan visualize <plan-id>
+
+# Export to JSON
+frctl plan export <plan-id> plan.json
+```
+
 ### Initialize a Graph
 
 ```bash

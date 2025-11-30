@@ -169,26 +169,50 @@ class LLMProvider:
         )
 
 
-def get_provider(model: Optional[str] = None) -> LLMProvider:
+def get_provider(model: Optional[str] = None, config_path: Optional[str] = None) -> LLMProvider:
     """Get LLM provider with optional model override.
     
-    Reads configuration from environment variables:
-    - FRCTL_LLM_MODEL: Model to use (default: gpt-4)
-    - FRCTL_LLM_TEMPERATURE: Sampling temperature
-    - FRCTL_LLM_MAX_TOKENS: Maximum tokens
+    Loads configuration from:
+    1. Config files (.frctl/config.toml or ~/.frctl/config.toml)
+    2. Environment variables (higher priority)
+    3. Function parameters (highest priority)
     
     Args:
-        model: Override model from environment
+        model: Override model from config/environment
+        config_path: Optional path to config directory
         
     Returns:
         Configured LLMProvider
     """
-    model = model or os.getenv("FRCTL_LLM_MODEL", "gpt-4")
-    temperature = float(os.getenv("FRCTL_LLM_TEMPERATURE", "0.7"))
-    max_tokens = int(os.getenv("FRCTL_LLM_MAX_TOKENS", "2000"))
-    
-    return LLMProvider(
-        model=model,
-        temperature=temperature,
-        max_tokens=max_tokens,
-    )
+    try:
+        from frctl.config import get_config
+        from pathlib import Path
+        
+        # Load configuration
+        project_dir = Path(config_path) if config_path else None
+        config = get_config(project_dir)
+        
+        # Apply model override if provided
+        if model:
+            config.llm.model = model
+        
+        # Create provider from config
+        return LLMProvider(
+            model=config.llm.model,
+            temperature=config.llm.temperature,
+            max_tokens=config.llm.max_tokens,
+            num_retries=config.llm.num_retries,
+            fallback_models=config.llm.fallback_models,
+            verbose=config.llm.verbose,
+        )
+    except Exception:
+        # Fallback to simple environment-based config
+        model = model or os.getenv("FRCTL_LLM_MODEL", "gpt-4")
+        temperature = float(os.getenv("FRCTL_LLM_TEMPERATURE", "0.7"))
+        max_tokens = int(os.getenv("FRCTL_LLM_MAX_TOKENS", "2000"))
+        
+        return LLMProvider(
+            model=model,
+            temperature=temperature,
+            max_tokens=max_tokens,
+        )

@@ -1,9 +1,9 @@
 # Frctl Development - Session Brief
 
-**Last Updated**: 2025-11-30 04:00 UTC  
+**Last Updated**: 2025-11-30 16:00 UTC  
 **Repository**: github.com:timlawrenz/frctl  
 **Branch**: main (commit: 993ec42)
-**Status**: ✅ Phase 1 Complete, Phase 2 in progress (~75% complete)
+**Status**: ✅ Phase 1 Complete, Phase 2 in progress (~83% complete)
 **OpenSpec Proposal**: `add-recap-engine` (validated ✅)
 
 ---
@@ -17,10 +17,10 @@
 - ✅ Archived to openspec/specs/graph-core
 - ✅ **Committed and pushed** (commit: a8ea52b)
 
-### Phase 2: ReCAP Planning Engine ⚠️ IN PROGRESS (75% - 95/126 tasks)
+### Phase 2: ReCAP Planning Engine ⚠️ IN PROGRESS (83% - 105/126 tasks)
 **OpenSpec Proposal**: `openspec/changes/add-recap-engine/` (validated ✅)
 
-**Completed Components** (95 tasks ✅):
+**Completed Components** (105 tasks ✅):
 - ✅ **Setup & Dependencies** (6/6) - LiteLLM, Jinja2, package structure
 - ✅ **LLM Provider** (10/10) - Full LiteLLM wrapper with token counting & cost tracking
 - ✅ **Prompt Templates** (10/10) - Professional Jinja2 system with 5 templates
@@ -30,32 +30,33 @@
 - ✅ **Digest Protocol** (10/10) - Context compression with LLM-based summarization
 - ✅ **Plan Persistence** (10/10) - Save/load from .frctl/plans/ with versioning
 - ✅ **CLI Commands** (10/10) - Complete planning workflow CLI
-- ✅ **Testing** (9/10 partial) - 123+ comprehensive tests passing
+- ✅ **Configuration** (10/10) - Complete config system with 100+ LLM providers 🎉
 
-**In Progress** (31 tasks remaining):
-- ⚠️ **Configuration** (0/10) - LLM config in .frctl/config.toml
-- ⚠️ **Testing** (1/10) - Need e2e multi-provider tests
-- ⚠️ **Documentation** (0/10) - All docs pending
+**In Progress** (21 tasks remaining):
+- ⚠️ **Testing** (9/10) - Need e2e multi-provider tests
+- ⚠️ **Documentation** (2/10) - Configuration guide done, need ReCAP docs
 - ⚠️ **Validation** (0/10) - Final validation and polish
 
-**Test Coverage**: 208 total tests passing (100% pass rate)
+**Test Coverage**: 230 total tests passing (100% pass rate)
 - Graph: 85 tests ✅
 - Planning: 77 tests (goal + integration + persistence + digest + advanced) ✅
 - Context: 18 tests ✅
 - LLM: 19 tests ✅
 - CLI: 9 tests ✅
+- Config: 22 tests ✅ NEW!
 
 ---
 
 ## 🎉 Latest Achievements (This Session)
 
-1. **✅ Planning Engine Complete** - Full ReCAP algorithm implementation 🎉
-2. **✅ Dependency Inference** - LLM-based dependency detection between siblings
-3. **✅ Depth-First Traversal** - Efficient planning strategy
-4. **✅ Pause/Resume** - Planning session management
-5. **✅ Rollback** - Undo goal decompositions
-6. **✅ 9 New Tests** - Advanced engine tests (208 total passing)
-7. **✅ 49 New Tasks** - Digest (40) + CLI (9) total from this session
+1. **✅ Configuration System Complete** - Full config management with 100+ LLM providers 🎉
+2. **✅ Multi-Provider Support** - OpenAI, Anthropic, Google, Cohere, local models (Ollama)
+3. **✅ Security** - API key management via env vars, never stored in files
+4. **✅ Priority System** - Env > Project > User > Defaults
+5. **✅ CLI Commands** - config init/show/validate/test
+6. **✅ 22 New Tests** - Comprehensive config tests (230 total passing)
+7. **✅ Documentation** - Complete 390-line configuration guide
+8. **✅ 10 Tasks Complete** - All Configuration section tasks (Section 10)
 
 ---
 
@@ -111,16 +112,16 @@
 4. ~~**Digest Protocol**~~ ✅ **COMPLETE** (10/10 tasks)
 5. ~~**CLI Commands**~~ ✅ **COMPLETE** (10/10 tasks)
 6. ~~**Planning Engine**~~ ✅ **COMPLETE** (10/10 tasks)
+7. ~~**Configuration**~~ ✅ **COMPLETE** (10/10 tasks)
 
 **Important** (improves quality):
-7. **Configuration** (0/10 tasks) - LLM config in .frctl/config.toml
 8. **Testing** (9/10 tasks) - Need e2e multi-provider tests
-9. **Documentation** (0/10 tasks) - ReCAP algorithm, provider setup, examples
+9. **Documentation** (2/10 tasks) - Config guide done ✅, need ReCAP algorithm docs
 10. **Validation** (0/10 tasks) - Final polish and validation
 
 **Recommended Next Action**:
-- Add Configuration (tasks 10.1-10.10) - LLM settings management
-- OR complete Documentation (tasks 12.1-12.10) - User guides and examples
+- Complete Testing (tasks 11.4-11.10) - Digest, atomicity, CLI, multi-provider e2e tests
+- OR complete Documentation (tasks 12.1-12.10) - ReCAP algorithm guide, examples, tutorials
 
 ---
 
@@ -134,9 +135,9 @@ Based on OpenSpec `add-recap-engine` tasks (31 remaining):
 4. ~~**Digest Protocol**~~ ✅ **DONE** (10/10)
 5. ~~**CLI Commands**~~ ✅ **DONE** (10/10)
 6. ~~**Planning Engine**~~ ✅ **DONE** (10/10)
-7. **Configuration** (0/10) - .frctl/config.toml for LLM settings, API keys, preferences
-8. **Testing** (1/10) - e2e multi-provider tests
-9. **Documentation** (0/10) - ReCAP guide, provider config, examples, troubleshooting
+7. ~~**Configuration**~~ ✅ **DONE** (10/10) - Complete config system with 100+ providers
+8. **Testing** (9/10) - Need digest, atomicity, CLI, multi-provider e2e tests
+9. **Documentation** (2/10) - Config guide done ✅, need ReCAP algorithm docs
 10. **Validation** (0/10) - Linting, benchmarks, final polish
 
 ---
@@ -241,8 +242,8 @@ cat openspec/changes/add-recap-engine/tasks.md
 ## 📊 Statistics
 
 **Code**: 
-- Lines: ~7,200+ (160 tests, 7 modules, docs)
-- Test Coverage: Graph 100%, Planning & Context & Persistence & Templates comprehensive
+- Lines: ~8,400+ (230 tests, 8 modules, comprehensive docs)
+- Test Coverage: Graph 100%, Planning & Context & Persistence & Templates & Config comprehensive
 
 **Performance** (all benchmarks exceeded):
 - 1000-node ops: ~0.1s (target: <1s) ⚡
@@ -251,8 +252,8 @@ cat openspec/changes/add-recap-engine/tasks.md
 
 **Progress**:
 - Phase 1: 100% ✅
-- Phase 2: 75% (95/126 tasks - All core components complete! ✅)
-- Overall: ~75%
+- Phase 2: 83% (105/126 tasks - All critical components complete! ✅)
+- Overall: ~83%
 
 ---
 
@@ -268,7 +269,9 @@ cat openspec/changes/add-recap-engine/tasks.md
 
 **Documentation**:
 - `docs/roadmap.md` - Implementation plan
-- `PROMPT_TEMPLATES_COMPLETE.md` - Latest completion summary
+- `docs/guides/configuration.md` - Complete config guide ✅ NEW!
+- `CONFIGURATION_COMPLETE.md` - Latest completion summary ✅ NEW!
+- `PROMPT_TEMPLATES_COMPLETE.md` - Templates completion summary
 - `QUICK_REFERENCE.md` - CLI cheat sheet
 - `ARCHIVE_SUMMARY.md` - Phase 1 archive details
 

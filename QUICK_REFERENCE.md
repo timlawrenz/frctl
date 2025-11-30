@@ -1,5 +1,99 @@
 # Frctl Quick Reference
 
+## Configuration Commands
+
+### Setup
+```bash
+# Initialize configuration (project-level)
+frctl config init
+
+# Initialize global configuration (user-level)
+frctl config init --global
+
+# Overwrite existing config
+frctl config init --force
+```
+
+### View & Validate
+```bash
+# Show current configuration
+frctl config show
+
+# Show all config sources
+frctl config show --all
+
+# Validate configuration
+frctl config validate
+
+# Test LLM provider connection
+frctl config test
+
+# Test with specific model
+frctl config test --model claude-3-5-sonnet-20241022
+```
+
+### Environment Variables
+```bash
+# LLM Settings
+export FRCTL_LLM_MODEL=gpt-4
+export FRCTL_LLM_TEMPERATURE=0.7
+export FRCTL_LLM_MAX_TOKENS=2000
+
+# API Keys
+export OPENAI_API_KEY=sk-...
+export ANTHROPIC_API_KEY=sk-ant-...
+export GEMINI_API_KEY=...
+
+# Planning Settings
+export FRCTL_PLANNING_MAX_DEPTH=10
+export FRCTL_PLANNING_AUTO_DECOMPOSE=false
+```
+
+## Planning Commands
+
+### Start Planning
+```bash
+# Initialize a new plan
+frctl plan init "Build a microservices architecture"
+
+# Continue planning session
+frctl plan continue <plan-id>
+```
+
+### View Plans
+```bash
+# List all plans
+frctl plan list
+
+# Show plan status
+frctl plan status <plan-id>
+
+# Review specific goal
+frctl plan review <goal-id>
+
+# Visualize plan tree (ASCII)
+frctl plan visualize <plan-id>
+
+# Visualize as Mermaid diagram
+frctl plan visualize <plan-id> --format mermaid
+```
+
+### Export & Delete
+```bash
+# Export plan to JSON
+frctl plan export <plan-id>
+frctl plan export <plan-id> output.json
+
+# Delete plan (with archive)
+frctl plan delete <plan-id>
+
+# Delete without archive
+frctl plan delete <plan-id> --no-archive
+
+# Force delete (no confirmation)
+frctl plan delete <plan-id> --force
+```
+
 ## Graph Commands
 
 ### Initialize
