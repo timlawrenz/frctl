@@ -93,9 +93,9 @@ frctl graph add-node Library auth-utils
 frctl graph add-node Schema user-schema
 
 # Define relationships
-frctl graph add-edge \\
-  pkg:frctl/api-gateway@local \\
-  pkg:frctl/auth-utils@local \\
+frctl graph add-edge \
+  pkg:frctl/api-gateway@local \
+  pkg:frctl/auth-utils@local \
   --type DEPENDS_ON
 
 # View your architecture
