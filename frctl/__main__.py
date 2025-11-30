@@ -4,6 +4,8 @@ from pathlib import Path
 
 from frctl.graph import FederatedGraph, Node, NodeType, Edge, EdgeType
 from frctl.graph.dag import generate_purl
+from frctl.planning.engine import PlanningEngine
+from frctl.llm.provider import get_provider
 
 
 @click.group()
@@ -15,6 +17,12 @@ def cli():
 @cli.group()
 def graph():
     """Manage the architectural graph"""
+    pass
+
+
+@cli.group()
+def plan():
+    """Manage planning sessions"""
     pass
 
 
@@ -242,6 +250,58 @@ def graph_stats():
             click.echo(f"    {ntype:10} {count}")
 
 
+@plan.command("init")
+@click.argument("description")
+@click.option("--model", default=None, help="LLM model to use")
+def plan_init(description: str, model: str):
+    """Start a new planning session"""
+    click.echo(f"\n🎯 Initializing planning session...")
+    click.echo(f"   Goal: {description}")
+    if model:
+        click.echo(f"   Model: {model}")
+    click.echo()
+    
+    try:
+        # Get LLM provider
+        llm = get_provider(model=model)
+        
+        # Create planning engine
+        engine = PlanningEngine(llm_provider=llm)
+        
+        # Run planning
+        plan_obj = engine.run(description)
+        
+        # Save plan (basic implementation)
+        plans_dir = Path(".frctl/plans")
+        plans_dir.mkdir(parents=True, exist_ok=True)
+        
+        plan_path = plans_dir / f"{plan_obj.id}.json"
+        with open(plan_path, 'w') as f:
+            f.write(plan_obj.model_dump_json(indent=2))
+        
+        click.echo(f"\n💾 Plan saved to: {plan_path}")
+        
+        # Show statistics
+        stats = plan_obj.get_statistics()
+        click.echo(f"\n📊 Statistics:")
+        click.echo(f"   Total goals: {stats['total_goals']}")
+        click.echo(f"   Atomic goals: {stats['atomic_goals']}")
+        click.echo(f"   Max depth: {stats['max_depth']}")
+        click.echo(f"   Total tokens: {stats['total_tokens']}")
+        
+        # Show LLM statistics
+        llm_stats = llm.get_statistics()
+        click.echo(f"\n💰 LLM Usage:")
+        click.echo(f"   API calls: {llm_stats['call_count']}")
+        click.echo(f"   Total tokens: {llm_stats['total_tokens']}")
+        click.echo(f"   Estimated cost: ${llm_stats['total_cost']}")
+        
+    except Exception as e:
+        click.echo(f"\n❌ Planning failed: {e}", err=True)
+        raise SystemExit(1)
+
+
+# Delete duplicate section below
 @cli.command()
 def hello():
     """Display a hello world message"""
