@@ -1,9 +1,9 @@
 # Frctl Development - Session Brief
 
-**Last Updated**: 2025-11-30 16:00 UTC  
+**Last Updated**: 2025-11-30 17:33 UTC  
 **Repository**: github.com:timlawrenz/frctl  
 **Branch**: main (commit: 993ec42)
-**Status**: ✅ Phase 1 Complete, Phase 2 in progress (~83% complete)
+**Status**: ✅ Phase 1 Complete, Phase 2 in progress (~87% complete)
 **OpenSpec Proposal**: `add-recap-engine` (validated ✅)
 
 ---
@@ -17,10 +17,10 @@
 - ✅ Archived to openspec/specs/graph-core
 - ✅ **Committed and pushed** (commit: a8ea52b)
 
-### Phase 2: ReCAP Planning Engine ⚠️ IN PROGRESS (83% - 105/126 tasks)
+### Phase 2: ReCAP Planning Engine ⚠️ IN PROGRESS (87% - 109/126 tasks)
 **OpenSpec Proposal**: `openspec/changes/add-recap-engine/` (validated ✅)
 
-**Completed Components** (105 tasks ✅):
+**Completed Components** (109 tasks ✅):
 - ✅ **Setup & Dependencies** (6/6) - LiteLLM, Jinja2, package structure
 - ✅ **LLM Provider** (10/10) - Full LiteLLM wrapper with token counting & cost tracking
 - ✅ **Prompt Templates** (10/10) - Professional Jinja2 system with 5 templates
@@ -31,32 +31,30 @@
 - ✅ **Plan Persistence** (10/10) - Save/load from .frctl/plans/ with versioning
 - ✅ **CLI Commands** (10/10) - Complete planning workflow CLI
 - ✅ **Configuration** (10/10) - Complete config system with 100+ LLM providers 🎉
+- ✅ **Testing** (9/10) - Mock provider, atomicity tests, all core tests passing
 
-**In Progress** (21 tasks remaining):
-- ⚠️ **Testing** (9/10) - Need e2e multi-provider tests
-- ⚠️ **Documentation** (2/10) - Configuration guide done, need ReCAP docs
+**In Progress** (17 tasks remaining):
+- ⚠️ **Testing** (1/10) - Need CLI integration & multi-provider e2e tests
+- ⚠️ **Documentation** (6/10) - Core docs done, need prompt guide & examples
 - ⚠️ **Validation** (0/10) - Final validation and polish
 
-**Test Coverage**: 230 total tests passing (100% pass rate)
+**Test Coverage**: 244 total tests passing (100% pass rate)
 - Graph: 85 tests ✅
-- Planning: 77 tests (goal + integration + persistence + digest + advanced) ✅
+- Planning: 83 tests (goal + integration + persistence + digest + advanced + atomicity) ✅
 - Context: 18 tests ✅
-- LLM: 19 tests ✅
+- LLM: 27 tests (renderer + mock provider) ✅
 - CLI: 9 tests ✅
-- Config: 22 tests ✅ NEW!
+- Config: 22 tests ✅
 
 ---
 
 ## 🎉 Latest Achievements (This Session)
 
-1. **✅ Configuration System Complete** - Full config management with 100+ LLM providers 🎉
-2. **✅ Multi-Provider Support** - OpenAI, Anthropic, Google, Cohere, local models (Ollama)
-3. **✅ Security** - API key management via env vars, never stored in files
-4. **✅ Priority System** - Env > Project > User > Defaults
-5. **✅ CLI Commands** - config init/show/validate/test
-6. **✅ 22 New Tests** - Comprehensive config tests (230 total passing)
-7. **✅ Documentation** - Complete 390-line configuration guide
-8. **✅ 10 Tasks Complete** - All Configuration section tasks (Section 10)
+1. **✅ Mock LLM Provider Complete** - MockLLMProvider for deterministic testing 🎉
+2. **✅ Atomicity Detection Tests** - 6 comprehensive unit tests for LLM-based atomicity
+3. **✅ Task Audit Complete** - Verified and updated all completed tasks
+4. **✅ 14 New Tests** - All passing (244 total passing)
+5. **✅ 18 Tasks Complete** - From 91/126 to 109/126 (72% → 87%)
 
 ---
 
@@ -242,8 +240,8 @@ cat openspec/changes/add-recap-engine/tasks.md
 ## 📊 Statistics
 
 **Code**: 
-- Lines: ~8,400+ (230 tests, 8 modules, comprehensive docs)
-- Test Coverage: Graph 100%, Planning & Context & Persistence & Templates & Config comprehensive
+- Lines: ~8,600+ (244 tests, 8 modules + mock provider, comprehensive docs)
+- Test Coverage: Graph 100%, Planning & Context & Persistence & Templates & Config & Atomicity comprehensive
 
 **Performance** (all benchmarks exceeded):
 - 1000-node ops: ~0.1s (target: <1s) ⚡
@@ -252,8 +250,8 @@ cat openspec/changes/add-recap-engine/tasks.md
 
 **Progress**:
 - Phase 1: 100% ✅
-- Phase 2: 83% (105/126 tasks - All critical components complete! ✅)
-- Overall: ~83%
+- Phase 2: 87% (109/126 tasks - All critical components complete! ✅)
+- Overall: ~87%
 
 ---
 

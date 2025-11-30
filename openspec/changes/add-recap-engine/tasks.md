@@ -115,39 +115,39 @@
 
 ## 10. Configuration Management
 
-- [ ] 10.1 Add LLM configuration to `.frctl/config.toml`
-- [ ] 10.2 Implement API key management (env vars: OPENAI_API_KEY, etc.)
-- [ ] 10.3 Add model selection (llm.model = "gpt-4" or "claude-3-5-sonnet")
-- [ ] 10.4 Add provider-specific settings (temperature, max_tokens)
-- [ ] 10.5 Add planning preferences (max_depth, auto_decompose)
-- [ ] 10.6 Implement fallback chain configuration (primary + backup models)
-- [ ] 10.7 Add local model support config (ollama/codellama, etc.)
-- [ ] 10.8 Create configuration documentation with provider examples
-- [ ] 10.9 Add configuration validation and migration utilities
-- [ ] 10.10 Document cost tracking and logging options
+- [x] 10.1 Add LLM configuration to `.frctl/config.toml`
+- [x] 10.2 Implement API key management (env vars: OPENAI_API_KEY, etc.)
+- [x] 10.3 Add model selection (llm.model = "gpt-4" or "claude-3-5-sonnet")
+- [x] 10.4 Add provider-specific settings (temperature, max_tokens)
+- [x] 10.5 Add planning preferences (max_depth, auto_decompose)
+- [x] 10.6 Implement fallback chain configuration (primary + backup models)
+- [x] 10.7 Add local model support config (ollama/codellama, etc.)
+- [x] 10.8 Create configuration documentation with provider examples
+- [x] 10.9 Add configuration validation and migration utilities
+- [x] 10.10 Document cost tracking and logging options
 
 ## 11. Testing
 
 - [x] 11.1 Write unit tests for Goal class (10 tests)
 - [x] 11.2 Write unit tests for ContextTree (18 tests)
 - [x] 11.3 Write unit tests for hydration/dehydration
-- [ ] 11.4 Write unit tests for digest generation
-- [ ] 11.5 Write unit tests for atomicity detection
+- [x] 11.4 Write unit tests for digest generation
+- [x] 11.5 Write unit tests for atomicity detection
 - [x] 11.6 Write unit tests for planning engine (6 integration tests)
 - [x] 11.7 Write integration tests with mock LLM responses
 - [ ] 11.8 Write integration tests for CLI commands
-- [ ] 11.9 Add mock LiteLLM provider for deterministic testing
+- [x] 11.9 Add mock LiteLLM provider for deterministic testing
 - [ ] 11.10 Create end-to-end planning test with multiple providers
 
 ## 12. Documentation
 
-- [ ] 12.1 Document ReCAP algorithm in technical guide
-- [ ] 12.2 Create planning workflow tutorial
-- [ ] 12.3 Document LLM provider configuration (all supported providers)
+- [x] 12.1 Document ReCAP algorithm in technical guide
+- [x] 12.2 Create planning workflow tutorial
+- [x] 12.3 Document LLM provider configuration (all supported providers)
 - [ ] 12.4 Add prompt engineering guide
-- [ ] 12.5 Document context management principles
+- [x] 12.5 Document context management principles
 - [ ] 12.6 Create planning examples with different providers
-- [ ] 12.7 Add CLI command reference
+- [x] 12.7 Add CLI command reference
 - [ ] 12.8 Document plan JSON schema
 - [ ] 12.9 Create architecture diagrams
 - [ ] 12.10 Add troubleshooting guide (including local model setup)
