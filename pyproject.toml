@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "frctl"
+version = "0.1.0"
+description = "Fractal project management tool"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "click>=8.0.0",
+    "networkx>=3.0",
+    "pydantic>=2.0",
+]
+
+[project.scripts]
+frctl = "frctl.__main__:cli"
+
+[tool.setuptools.packages.find]
+include = ["frctl*"]
+exclude = ["openspec*"]
