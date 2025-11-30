@@ -141,10 +141,12 @@ class TestPlanningEngineContextIntegration:
         
         # First call: is_atomic = false (decompose)
         # Second call: decomposition
-        # Third/Fourth calls: is_atomic = true for children
+        # Third call: dependency inference (for 2 children)
+        # Fourth/Fifth calls: is_atomic = true for children
         mock_llm.generate.side_effect = [
             {"content": '{"is_atomic": false, "reasoning": "Needs breakdown"}', "usage": {"total_tokens": 50}},
             {"content": '{"sub_goals": [{"description": "A"}, {"description": "B"}], "reasoning": "Split"}', "usage": {"total_tokens": 100}},
+            {"content": '{"dependencies": []}', "usage": {"total_tokens": 30}},  # dependency inference
             {"content": '{"is_atomic": true, "reasoning": "Simple"}', "usage": {"total_tokens": 30}},
             {"content": '{"is_atomic": true, "reasoning": "Simple"}', "usage": {"total_tokens": 30}},
         ]
@@ -152,9 +154,9 @@ class TestPlanningEngineContextIntegration:
         engine = PlanningEngine(llm_provider=mock_llm)
         plan = engine.run("Build feature")
         
-        # Verify context tree stats
+        # Verify context tree stats (50 + 100 + 30 + 30 + 30 = 240 tokens, no dep tokens counted)
         stats = engine.context_tree.get_tree_stats()
         
         assert stats["total_nodes"] == 3  # root + 2 children
-        assert stats["total_tokens"] == 210  # 50 + 100 + 30 + 30
+        assert stats["total_tokens"] == 210  # Dependency call doesn't update context tokens
         assert stats["avg_tokens_per_node"] == pytest.approx(70, rel=0.1)

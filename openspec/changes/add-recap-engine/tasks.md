@@ -67,12 +67,12 @@
 - [x] 6.2 Add recursive decomposition algorithm
 - [x] 6.3 Implement atomicity detection with LLM
 - [x] 6.4 Add goal splitting logic (1 composite -> N children)
-- [ ] 6.5 Implement dependency inference between siblings
+- [x] 6.5 Implement dependency inference between siblings
 - [x] 6.6 Add planning state machine (assess -> decompose -> atomic)
-- [ ] 6.7 Implement depth-first planning traversal
-- [ ] 6.8 Add planning pause/resume capability
-- [ ] 6.9 Implement planning rollback (undo decomposition)
-- [ ] 6.10 Create planning session management
+- [x] 6.7 Implement depth-first planning traversal
+- [x] 6.8 Add planning pause/resume capability
+- [x] 6.9 Implement planning rollback (undo decomposition)
+- [x] 6.10 Create planning session management
 
 ## 7. Digest Protocol (frctl/planning/)
 

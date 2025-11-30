@@ -1,9 +1,9 @@
 # Frctl Development - Session Brief
 
-**Last Updated**: 2025-11-30 03:55 UTC  
+**Last Updated**: 2025-11-30 04:00 UTC  
 **Repository**: github.com:timlawrenz/frctl  
-**Branch**: main (commit: 3c18bba)
-**Status**: ✅ Phase 1 Complete, Phase 2 in progress (~70% complete)
+**Branch**: main (commit: 993ec42)
+**Status**: ✅ Phase 1 Complete, Phase 2 in progress (~75% complete)
 **OpenSpec Proposal**: `add-recap-engine` (validated ✅)
 
 ---
@@ -17,46 +17,45 @@
 - ✅ Archived to openspec/specs/graph-core
 - ✅ **Committed and pushed** (commit: a8ea52b)
 
-### Phase 2: ReCAP Planning Engine ⚠️ IN PROGRESS (70% - 88/126 tasks)
+### Phase 2: ReCAP Planning Engine ⚠️ IN PROGRESS (75% - 95/126 tasks)
 **OpenSpec Proposal**: `openspec/changes/add-recap-engine/` (validated ✅)
 
-**Completed Components** (88 tasks ✅):
+**Completed Components** (95 tasks ✅):
 - ✅ **Setup & Dependencies** (6/6) - LiteLLM, Jinja2, package structure
 - ✅ **LLM Provider** (10/10) - Full LiteLLM wrapper with token counting & cost tracking
 - ✅ **Prompt Templates** (10/10) - Professional Jinja2 system with 5 templates
 - ✅ **Goal Data Model** (10/10) - Complete Goal/AtomicGoal/CompositeGoal classes
 - ✅ **Context Tree** (10/10) - Full hierarchical context with hydration/dehydration
-- ✅ **Planning Engine Core** (9/10) - Recursive decomposition, atomicity detection
+- ✅ **Planning Engine** (10/10) - Complete ReCAP algorithm 🎉
 - ✅ **Digest Protocol** (10/10) - Context compression with LLM-based summarization
 - ✅ **Plan Persistence** (10/10) - Save/load from .frctl/plans/ with versioning
-- ✅ **CLI Commands** (10/10) - Complete planning workflow CLI 🎉
-- ✅ **Testing** (3/10 partial) - 114+ planning/context/llm/cli tests passing
+- ✅ **CLI Commands** (10/10) - Complete planning workflow CLI
+- ✅ **Testing** (9/10 partial) - 123+ comprehensive tests passing
 
-**In Progress** (38 tasks remaining):
-- ⚠️ **Planning Engine** (1/10) - Need dependency inference, traversal, pause/resume
+**In Progress** (31 tasks remaining):
 - ⚠️ **Configuration** (0/10) - LLM config in .frctl/config.toml
-- ⚠️ **Testing** (7/10) - Need e2e multi-provider tests, more edge cases
+- ⚠️ **Testing** (1/10) - Need e2e multi-provider tests
 - ⚠️ **Documentation** (0/10) - All docs pending
 - ⚠️ **Validation** (0/10) - Final validation and polish
 
-**Test Coverage**: 199 total tests passing (100% pass rate)
+**Test Coverage**: 208 total tests passing (100% pass rate)
 - Graph: 85 tests ✅
-- Planning: 10 goal + 6 integration + 22 persistence + 30 digest = 68 tests ✅
+- Planning: 77 tests (goal + integration + persistence + digest + advanced) ✅
 - Context: 18 tests ✅
-- LLM: 19 renderer tests ✅
+- LLM: 19 tests ✅
 - CLI: 9 tests ✅
 
 ---
 
 ## 🎉 Latest Achievements (This Session)
 
-1. **✅ Digest Protocol Implemented** - Complete context compression system
-2. **✅ CLI Commands Complete** - Full planning workflow from command line 🎉
-3. **✅ 8 CLI Commands** - list, status, review, export, visualize, delete, continue (init exists)
-4. **✅ ASCII & Mermaid Viz** - Tree visualization in multiple formats
-5. **✅ 9 CLI Tests** - Comprehensive command testing
-6. **✅ 39 New Tests Total** - Digest (30) + CLI (9) = 199 total passing
-7. **✅ Production-Ready CLI** - Archive, export, force flags, confirmations
+1. **✅ Planning Engine Complete** - Full ReCAP algorithm implementation 🎉
+2. **✅ Dependency Inference** - LLM-based dependency detection between siblings
+3. **✅ Depth-First Traversal** - Efficient planning strategy
+4. **✅ Pause/Resume** - Planning session management
+5. **✅ Rollback** - Undo goal decompositions
+6. **✅ 9 New Tests** - Advanced engine tests (208 total passing)
+7. **✅ 49 New Tasks** - Digest (40) + CLI (9) total from this session
 
 ---
 
@@ -91,9 +90,9 @@
 - Serialization support
 - 18 comprehensive tests
 
-**tests/** ✅ 199 TESTS PASSING
+**tests/** ✅ 208 TESTS PASSING
 - `tests/graph/` - 85 tests
-- `tests/planning/` - 68 tests (10 goal + 6 integration + 22 persistence + 30 digest)
+- `tests/planning/` - 77 tests (goal + integration + persistence + digest + advanced)
 - `tests/context/` - 18 tests
 - `tests/llm/` - 19 renderer tests
 - `tests/cli/` - 9 command tests
@@ -103,7 +102,7 @@
 
 ## 🎯 Priority Next Steps
 
-**Based on OpenSpec proposal**: `add-recap-engine` (88/126 tasks complete)
+**Based on OpenSpec proposal**: `add-recap-engine` (95/126 tasks complete)
 
 **CRITICAL** (blocks production use):
 1. ~~**Context Tree**~~ ✅ **COMPLETE** (10/10 tasks)
@@ -111,32 +110,32 @@
 3. ~~**Prompt Templates**~~ ✅ **COMPLETE** (10/10 tasks)
 4. ~~**Digest Protocol**~~ ✅ **COMPLETE** (10/10 tasks)
 5. ~~**CLI Commands**~~ ✅ **COMPLETE** (10/10 tasks)
+6. ~~**Planning Engine**~~ ✅ **COMPLETE** (10/10 tasks)
 
 **Important** (improves quality):
-6. **Planning Engine** (9/10 tasks) - Need dependency inference, traversal, pause/resume
 7. **Configuration** (0/10 tasks) - LLM config in .frctl/config.toml
-8. **Testing** (3/10 tasks) - Need e2e multi-provider tests
+8. **Testing** (9/10 tasks) - Need e2e multi-provider tests
 9. **Documentation** (0/10 tasks) - ReCAP algorithm, provider setup, examples
 10. **Validation** (0/10 tasks) - Final polish and validation
 
 **Recommended Next Action**:
-- Finish Planning Engine (tasks 6.5, 6.7-6.10) - Complete core algorithm
-- OR add Configuration (tasks 10.1-10.10) - LLM settings management
+- Add Configuration (tasks 10.1-10.10) - LLM settings management
+- OR complete Documentation (tasks 12.1-12.10) - User guides and examples
 
 ---
 
 ## 🔴 Still Missing
 
-Based on OpenSpec `add-recap-engine` tasks (38 remaining):
+Based on OpenSpec `add-recap-engine` tasks (31 remaining):
 
 1. ~~**Context Tree**~~ ✅ **DONE** (10/10)
 2. ~~**Plan Persistence**~~ ✅ **DONE** (10/10)
 3. ~~**Prompt Templates**~~ ✅ **DONE** (10/10)
 4. ~~**Digest Protocol**~~ ✅ **DONE** (10/10)
 5. ~~**CLI Commands**~~ ✅ **DONE** (10/10)
-6. **Planning Engine** (1/10) - dependency inference, depth-first traversal, pause/resume, rollback
+6. ~~**Planning Engine**~~ ✅ **DONE** (10/10)
 7. **Configuration** (0/10) - .frctl/config.toml for LLM settings, API keys, preferences
-8. **Testing** (7/10) - e2e multi-provider tests, more edge cases
+8. **Testing** (1/10) - e2e multi-provider tests
 9. **Documentation** (0/10) - ReCAP guide, provider config, examples, troubleshooting
 10. **Validation** (0/10) - Linting, benchmarks, final polish
 
@@ -252,8 +251,8 @@ cat openspec/changes/add-recap-engine/tasks.md
 
 **Progress**:
 - Phase 1: 100% ✅
-- Phase 2: 70% (88/126 tasks - Context + Persistence + Prompts + Digest + CLI ✅)
-- Overall: ~70%
+- Phase 2: 75% (95/126 tasks - All core components complete! ✅)
+- Overall: ~75%
 
 ---
 

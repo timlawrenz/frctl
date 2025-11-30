@@ -173,11 +173,12 @@ class PlanningEngine:
             # Default to atomic on failure
             return True
     
-    def decompose_goal(self, goal: Goal) -> List[Goal]:
+    def decompose_goal(self, goal: Goal, plan: Optional[Plan] = None) -> List[Goal]:
         """Decompose a composite goal into children with isolated contexts.
         
         Args:
             goal: Goal to decompose
+            plan: Optional plan for dependency inference
             
         Returns:
             List of child goals
@@ -294,6 +295,10 @@ class PlanningEngine:
             self.context_tree.update_token_usage(goal.id, tokens)
             goal.mark_complete()
             
+            # Infer dependencies between children (task 6.5)
+            if plan and len(children) > 1:
+                self._infer_dependencies(children, goal, plan)
+            
             return children
             
         except Exception as e:
@@ -320,7 +325,7 @@ class PlanningEngine:
             print(f"✓ Atomic: {goal.description[:60]}")
         else:
             # Decompose into children
-            children = self.decompose_goal(goal)
+            children = self.decompose_goal(goal, plan)
             
             # Add children to plan
             for child in children:
@@ -417,6 +422,252 @@ class PlanningEngine:
             True if deleted successfully
         """
         return self.plan_store.delete(plan_id, archive=archive)
+    
+    def _infer_dependencies(
+        self,
+        children: List[Goal],
+        parent: Goal,
+        plan: Plan
+    ) -> None:
+        """Infer dependencies between sibling goals using LLM.
+        
+        Args:
+            children: List of sibling goals
+            parent: Parent goal
+            plan: Plan containing the goals
+        """
+        if len(children) < 2:
+            return  # No dependencies needed for single child
+        
+        # Prepare sibling goal data
+        sibling_goals = [
+            {"id": child.id, "description": child.description}
+            for child in children
+        ]
+        
+        # Get context
+        parent_intent = parent.description if parent else None
+        global_ctx = self.context_tree.global_context
+        global_context_str = None
+        if global_ctx:
+            global_context_str = "\n".join(f"{k}: {v}" for k, v in global_ctx.items())
+        
+        # Render prompt
+        system_prompt = self.renderer.render_system_prompt()
+        user_prompt = self.renderer.render_infer_dependencies(
+            sibling_goals=sibling_goals,
+            parent_intent=parent_intent,
+            global_context=global_context_str,
+        )
+        
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+        
+        try:
+            response = self.llm.generate(messages, temperature=0.3)
+            content = response["content"].strip()
+            
+            # Extract JSON
+            import json
+            import re
+            
+            json_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', content, re.DOTALL)
+            if json_match:
+                json_str = json_match.group(1)
+            else:
+                json_match = re.search(r'(\{.*\})', content, re.DOTALL)
+                if json_match:
+                    json_str = json_match.group(1)
+                else:
+                    json_str = content
+            
+            # Parse dependencies
+            try:
+                parsed = json.loads(json_str)
+                dependencies = parsed.get("dependencies", [])
+                
+                # Apply dependencies to goals
+                for dep in dependencies:
+                    goal_id = dep.get("goal_id")
+                    depends_on = dep.get("depends_on", [])
+                    
+                    # Find goal and update
+                    for child in children:
+                        if child.id == goal_id:
+                            child.dependencies = depends_on
+                            break
+                
+            except json.JSONDecodeError:
+                print(f"Dependency inference failed: could not parse JSON")
+        
+        except Exception as e:
+            print(f"Dependency inference failed: {e}")
+            # Continue without dependencies
+    
+    def plan_depth_first(
+        self,
+        plan: Plan,
+        goal_id: Optional[str] = None,
+        max_iterations: int = 100
+    ) -> None:
+        """Plan goals using depth-first traversal.
+        
+        Args:
+            plan: Plan to work on
+            goal_id: Starting goal ID (defaults to root)
+            max_iterations: Maximum iterations to prevent infinite loops
+        """
+        if goal_id is None:
+            goal_id = plan.root_goal_id
+        
+        iterations = 0
+        stack = [goal_id]
+        visited = set()
+        
+        while stack and iterations < max_iterations:
+            iterations += 1
+            current_id = stack.pop()
+            
+            if current_id in visited:
+                continue
+            visited.add(current_id)
+            
+            goal = plan.get_goal(current_id)
+            if not goal:
+                continue
+            
+            # Process goal based on status
+            if goal.status == GoalStatus.PENDING:
+                # Assess atomicity
+                is_atomic = self.assess_atomicity(goal)
+                
+                if is_atomic:
+                    goal.status = GoalStatus.ATOMIC
+                else:
+                    # Decompose and add children to stack (depth-first)
+                    children = self.decompose_goal(goal, plan)
+                    for child in children:
+                        plan.add_goal(child)
+                        stack.append(child.id)  # Add to stack for DFS
+                
+                # Auto-save after each goal
+                if self.auto_save:
+                    self.plan_store.save(plan)
+            
+            elif goal.status == GoalStatus.DECOMPOSING:
+                # Already being processed, skip
+                continue
+        
+        if iterations >= max_iterations:
+            print(f"Warning: Max iterations ({max_iterations}) reached")
+    
+    def pause_planning(self, plan: Plan) -> Path:
+        """Pause planning and save current state.
+        
+        Args:
+            plan: Plan to pause
+            
+        Returns:
+            Path to saved plan
+        """
+        plan.status = "paused"
+        return self.plan_store.save(plan)
+    
+    def resume_planning(
+        self,
+        plan_id: str,
+        strategy: str = "depth_first"
+    ) -> Optional[Plan]:
+        """Resume a paused planning session.
+        
+        Args:
+            plan_id: ID of plan to resume
+            strategy: Planning strategy ("depth_first" or "breadth_first")
+            
+        Returns:
+            Resumed plan or None if not found
+        """
+        plan = self.plan_store.load(plan_id)
+        if not plan:
+            return None
+        
+        plan.status = "in_progress"
+        
+        # Continue planning based on strategy
+        if strategy == "depth_first":
+            self.plan_depth_first(plan)
+        else:
+            # Default to existing plan_goal for each pending
+            pending = plan.get_pending_goals()
+            for goal in pending:
+                self.plan_goal(plan, goal.id)
+        
+        # Mark complete if all goals are done
+        if plan.is_complete():
+            plan.mark_complete()
+        
+        if self.auto_save:
+            self.plan_store.save(plan)
+        
+        return plan
+    
+    def rollback_goal(self, plan: Plan, goal_id: str) -> bool:
+        """Rollback a goal decomposition (undo children).
+        
+        Args:
+            plan: Plan containing the goal
+            goal_id: ID of goal to rollback
+            
+        Returns:
+            True if rollback successful
+        """
+        goal = plan.get_goal(goal_id)
+        if not goal or not goal.child_ids:
+            return False
+        
+        # Remove children from plan
+        for child_id in goal.child_ids:
+            if child_id in plan.goals:
+                del plan.goals[child_id]
+            
+            # Remove from context tree
+            if child_id in self.context_tree._nodes:
+                del self.context_tree._nodes[child_id]
+        
+        # Reset goal
+        goal.child_ids = []
+        goal.status = GoalStatus.PENDING
+        goal.reasoning = None
+        
+        # Save if auto-save enabled
+        if self.auto_save:
+            self.plan_store.save(plan)
+        
+        return True
+    
+    def get_planning_status(self, plan: Plan) -> Dict[str, Any]:
+        """Get detailed planning status.
+        
+        Args:
+            plan: Plan to analyze
+            
+        Returns:
+            Dictionary with status information
+        """
+        stats = plan.get_statistics()
+        pending = plan.get_pending_goals()
+        atomic = plan.get_atomic_goals()
+        
+        return {
+            **stats,
+            "pending_count": len(pending),
+            "pending_goals": [g.id for g in pending],
+            "next_goal": pending[0].id if pending else None,
+            "is_paused": plan.status == "paused",
+            "can_continue": len(pending) > 0,
+        }
     
     def generate_digest(
         self,
