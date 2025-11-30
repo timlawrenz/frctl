@@ -109,9 +109,40 @@ Complete graph data model with:
 
 See [Graph Basics Guide](./docs/guides/graph-basics.md) for detailed usage.
 
+### 🔨 ReCAP Planning Engine (Phase 2 - In Progress)
+
+**Status**: 47% complete (59/126 tasks)
+
+Hierarchical goal decomposition with:
+- ✅ **Context Tree** - Hierarchical context management with token hygiene
+- ✅ **Plan Persistence** - Automatic save/load to `.frctl/plans/`
+- ✅ **LLM Integration** - Support for 100+ providers via LiteLLM
+- ✅ **Atomicity Detection** - LLM-based assessment of task decomposability
+- 🚧 **Digest Protocol** - Context compression (coming soon)
+- 🚧 **Prompt Templates** - Jinja2 templating (coming soon)
+
+**Usage**:
+```python
+from frctl.planning import PlanningEngine
+
+# Create planning engine with auto-save
+engine = PlanningEngine()
+
+# Run recursive planning
+plan = engine.run("Build a microservices authentication system")
+
+# Plans auto-save to .frctl/plans/
+# Load existing plan
+loaded = engine.load_plan(plan.id)
+
+# List all plans
+plans = engine.list_plans()
+```
+
+See [Context Tree Guide](./docs/guides/context-tree.md) for details on hierarchical context management.
+
 ### 🚧 Coming Soon
 
-- **ReCAP Engine** - Recursive context-aware planning (Phase 2)
 - **Tandem Protocol** - Human-in-the-loop workflow (Phase 3)
 - **Policy Gates** - Validation rules and constraints (Phase 3)
 - **Drift Detection** - Architecture reconciliation (Phase 4)
@@ -120,6 +151,7 @@ See [Graph Basics Guide](./docs/guides/graph-basics.md) for detailed usage.
 
 - **Guides**
   - [Graph Basics](./docs/guides/graph-basics.md) - Introduction and tutorial
+  - [Context Tree](./docs/guides/context-tree.md) - Hierarchical context management
 - **Schemas**
   - [Graph JSON Format](./docs/schemas/graph-json.md) - Serialization format
 - **Examples**
@@ -127,6 +159,8 @@ See [Graph Basics Guide](./docs/guides/graph-basics.md) for detailed usage.
 - **Architecture**
   - [Fractal V3 Specification](./docs/fractal-v3-architecture.md) - Complete technical specification
   - [Implementation Roadmap](./docs/roadmap.md) - Development plan
+- **Implementation Notes**
+  - [Plan Persistence](./PERSISTENCE_COMPLETE.md) - Plan storage implementation details
 
 ## Testing
 
@@ -141,7 +175,10 @@ pytest --cov=frctl --cov-report=html
 pytest -m "not slow"
 ```
 
-**Test Coverage**: 85 tests covering node validation, edge validation, DAG operations, cycle detection, serialization, and performance.
+**Test Coverage**: 141 tests covering:
+- **Graph** (85 tests): Node validation, edge validation, DAG operations, cycle detection, serialization, performance
+- **Planning** (38 tests): Goal models, context tree, plan persistence, engine integration
+- **Context** (18 tests): Hierarchical context, token tracking, hydration/dehydration
 
 ## CLI Reference
 
@@ -157,13 +194,31 @@ frctl graph validate          # Validate DAG integrity
 frctl graph export [path]     # Export as JSON
 frctl graph stats             # Show statistics
 
-# Planning commands (experimental)
-frctl plan init <description> # Start planning session
+# Planning commands (Phase 2 - In Progress)
+frctl plan init <description>  # Start planning session (saves to .frctl/plans/)
+# Coming soon:
+# frctl plan list              # List all plans
+# frctl plan status [plan-id]  # Show planning tree
+# frctl plan continue <plan-id> # Resume planning
+# frctl plan export <plan-id>  # Export plan
+# frctl plan delete <plan-id>  # Delete plan
 ```
 
 ## Project Status
 
-**v0.1.0** - Federated Graph implementation complete with comprehensive tests and documentation.
+**Phase 1 Complete** ✅ - Federated Graph implementation (v0.1.0)
+- Full DAG-based dependency management
+- 85 tests, 100% pass rate
+- Complete CLI and documentation
+
+**Phase 2 In Progress** 🔨 - ReCAP Planning Engine (47% complete)
+- ✅ Context Tree with hierarchical context management
+- ✅ Plan Persistence with automatic save/load
+- ✅ LLM integration supporting 100+ providers
+- ✅ 56 tests for planning and context
+- 🚧 Digest Protocol, Prompt Templates, expanded CLI coming soon
+
+**Overall Progress**: ~55% complete
 
 ## License
 

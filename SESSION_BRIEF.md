@@ -16,28 +16,30 @@
 - ✅ Archived to openspec/specs/graph-core
 - ✅ **Committed and pushed** (commit: a8ea52b)
 
-### Phase 2: ReCAP Planning Engine ⚠️ IN PROGRESS (29%)
+### Phase 2: ReCAP Planning Engine ⚠️ IN PROGRESS (47%)
 - ✅ **FIXED**: LLM JSON response parsing (was ignoring responses!)
 - ✅ Goal and Plan data models complete
 - ✅ LLM provider wrapper complete
 - ✅ Basic recursive planning engine working
 - ✅ **Context Tree complete** (tasks 5.1-5.10) 🎉
+- ✅ **Plan Persistence complete** (tasks 8.1-8.10) 🎉
 - ✅ 10 tests for Goal/Plan models
 - ✅ 18 tests for Context Tree
+- ✅ 22 tests for Plan Persistence
 - ✅ 6 integration tests for engine-context
 - ✅ Gemini integration verified (test_gemini_direct.py)
-- ⚠️ Still needs: Digest Protocol, Prompts, Persistence
+- ⚠️ Still needs: Digest Protocol, Prompts
 
 ---
 
 ## 🎉 Latest Achievements (This Session)
 
-1. **✅ Context Tree Implemented** - Full hierarchical context management
-2. **✅ Hydration/Dehydration Protocol** - Token-efficient context propagation
-3. **✅ Context Isolation** - Each goal gets fresh context window
-4. **✅ Token Tracking** - Per-context token usage monitoring
-5. **✅ 24 New Tests** - 18 context + 6 integration tests (119 total passing)
-6. **✅ Engine Integration** - Context Tree fully integrated with Planning Engine
+1. **✅ Plan Persistence Implemented** - Full save/load with .frctl/plans/ storage
+2. **✅ Plan Indexing** - Fast lookup with metadata tracking
+3. **✅ Auto-save** - Plans saved automatically during planning
+4. **✅ Archiving & Backup** - Safe plan management with versioning
+5. **✅ 22 New Tests** - Comprehensive persistence tests (141 total passing)
+6. **✅ Engine Integration** - PlanningEngine now persists plans automatically
 
 ---
 
@@ -49,11 +51,13 @@
 - 85 tests with 100% pass rate
 - Complete documentation
 
-**frctl/planning/** ✅ BASIC VERSION WORKS
+**frctl/planning/** ✅ PERSISTENCE ADDED
 - `goal.py` - Complete with 10 tests
-- `engine.py` - Basic version with JSON parsing (fixed!) + Context Tree integration
+- `engine.py` - With Context Tree integration + auto-save
+- `persistence.py` - Complete PlanStore with 22 tests
 - Recursive decomposition works
 - Atomicity detection works
+- Plans auto-save to .frctl/plans/
 
 **frctl/context/** ✅ COMPLETE
 - `tree.py` - Full Context Tree implementation
@@ -66,9 +70,9 @@
 **frctl/llm/** ✅ COMPLETE
 - `provider.py` - LiteLLM wrapper complete
 
-**tests/** ✅ 119 TESTS PASSING
+**tests/** ✅ 141 TESTS PASSING
 - `tests/graph/` - 85 tests
-- `tests/planning/` - 10 goal tests + 6 integration tests
+- `tests/planning/` - 10 goal + 6 integration + 22 persistence tests
 - `tests/context/` - 18 tests
 - Gemini integration verified
 
@@ -78,7 +82,7 @@
 
 **CRITICAL** (blocks production use):
 1. ~~**Context Tree**~~ ✅ **COMPLETE** (10/10 tasks done!)
-2. **Plan Persistence** (0/10 tasks) - Makes it actually usable
+2. ~~**Plan Persistence**~~ ✅ **COMPLETE** (10/10 tasks done!)
 3. **Prompt Templates** (0/10 tasks) - Makes it maintainable
 
 **Important** (improves quality):
@@ -91,9 +95,9 @@
 ## 🔴 Still Missing
 
 1. ~~**Context Tree**~~ ✅ **DONE** - Hydration/dehydration complete!
-2. **Digest Protocol** - No context compression yet (won't scale to large plans)
-3. **Prompt Templates** - Using inline strings (should use Jinja2)
-4. **Plan Persistence** - Plans only exist in memory
+2. ~~**Plan Persistence**~~ ✅ **DONE** - Save/load from .frctl/plans/ complete!
+3. **Digest Protocol** - No context compression yet (won't scale to large plans)
+4. **Prompt Templates** - Using inline strings (should use Jinja2)
 5. **More CLI** - Only `plan init` exists (need status, list, continue, etc.)
 6. **Graph Integration** - Goals don't link to FederatedGraph nodes yet
 
@@ -107,14 +111,15 @@ frctl/
 ├── llm/provider.py     ✅ Complete
 ├── planning/
 │   ├── goal.py         ✅ Complete + 10 tests
-│   └── engine.py       ✅ Basic version + Context Tree integration
+│   ├── engine.py       ✅ With Context Tree + auto-save
+│   └── persistence.py  ✅ Complete + 22 tests
 ├── context/
 │   └── tree.py         ✅ Complete + 18 tests
 └── __main__.py         ⚠️ Graph ✅, plan init only
 
 tests/
 ├── graph/              ✅ 85 tests passing
-├── planning/           ✅ 16 tests passing (10 goal + 6 integration)
+├── planning/           ✅ 38 tests passing (10 goal + 6 integration + 22 persistence)
 └── context/            ✅ 18 tests passing
 
 docs/
@@ -133,9 +138,9 @@ source .venv/bin/activate
 
 # Run tests
 pytest tests/context/ -v       # Context tests (18)
-pytest tests/planning/ -v      # Planning tests (16)
+pytest tests/planning/ -v      # Planning tests (38: 10 goal + 6 integration + 22 persistence)
 pytest tests/graph/ -v         # Graph tests (85)
-pytest -v                      # All tests (119)
+pytest -v                      # All tests (141)
 
 # Try planning (requires Gemini API key in .env)
 .venv/bin/python test_gemini_direct.py
@@ -182,8 +187,8 @@ Or be specific:
 ## 📊 Statistics
 
 **Code**: 
-- Lines: ~5,000+ (119 tests, 5 modules, docs)
-- Test Coverage: Graph 100%, Planning & Context comprehensive
+- Lines: ~6,500+ (141 tests, 6 modules, docs)
+- Test Coverage: Graph 100%, Planning & Context & Persistence comprehensive
 
 **Performance** (all benchmarks exceeded):
 - 1000-node ops: ~0.1s (target: <1s) ⚡
@@ -192,15 +197,15 @@ Or be specific:
 
 **Progress**:
 - Phase 1: 100% ✅
-- Phase 2: 29% (37/126 tasks - Context Tree complete!)
-- Overall: ~42%
+- Phase 2: 47% (59/126 tasks - Context Tree + Persistence complete!)
+- Overall: ~55%
 
 ---
 
 ## 🔗 References
 
 - `docs/roadmap.md` - Implementation plan
-- `openspec/changes/add-recap-engine/tasks.md` - 126 tasks (37 done, Context Tree ✅)
+- `openspec/changes/add-recap-engine/tasks.md` - 126 tasks (59 done, Context Tree + Persistence ✅)
 - `openspec/specs/graph-core/spec.md` - Phase 1 spec (archived)
 - GitHub: https://github.com/timlawrenz/frctl
 - Latest commit: 3c18bba

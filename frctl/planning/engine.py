@@ -7,6 +7,7 @@ from pathlib import Path
 from frctl.planning.goal import Goal, GoalStatus, Plan
 from frctl.llm.provider import LLMProvider
 from frctl.context import ContextTree
+from frctl.planning.persistence import PlanStore
 
 
 class PlanningEngine:
@@ -26,6 +27,8 @@ class PlanningEngine:
         max_children: int = 7,
         token_limit: int = 8192,
         global_context: Optional[Dict[str, Any]] = None,
+        plan_store: Optional[PlanStore] = None,
+        auto_save: bool = True,
     ):
         """Initialize planning engine.
         
@@ -35,6 +38,8 @@ class PlanningEngine:
             max_children: Maximum children per decomposition
             token_limit: Token limit per context node
             global_context: Global project context
+            plan_store: Plan store for persistence (defaults to .frctl/plans)
+            auto_save: Whether to automatically save plans after changes
         """
         self.llm = llm_provider or LLMProvider(model="gpt-4")
         self.max_depth = max_depth
@@ -43,6 +48,8 @@ class PlanningEngine:
             default_token_limit=token_limit,
             global_context=global_context or {},
         )
+        self.plan_store = plan_store or PlanStore()
+        self.auto_save = auto_save
     
     def create_plan(self, description: str) -> Plan:
         """Create a new planning session.
@@ -71,6 +78,10 @@ class PlanningEngine:
         
         # Create root context
         self.context_tree.create_root_context(root_goal_id)
+        
+        # Auto-save if enabled
+        if self.auto_save:
+            self.plan_store.save(plan)
         
         return plan
     
@@ -329,6 +340,10 @@ Respond with ONLY this JSON structure (no markdown, no explanation):
             # Recursively plan children
             for child in children:
                 self.plan_goal(plan, child.id)
+            
+            # Auto-save progress after each decomposition
+            if self.auto_save:
+                self.plan_store.save(plan)
     
     def run(self, description: str) -> Plan:
         """Run complete planning session.
@@ -361,4 +376,53 @@ Respond with ONLY this JSON structure (no markdown, no explanation):
         print(f"   Context nodes: {stats['total_nodes']}")
         print(f"   Avg tokens/context: {stats['avg_tokens_per_node']:.0f}")
         
+        # Auto-save if enabled
+        if self.auto_save:
+            self.plan_store.save(plan)
+        
         return plan
+    
+    def load_plan(self, plan_id: str) -> Optional[Plan]:
+        """Load a plan from storage.
+        
+        Args:
+            plan_id: ID of plan to load
+            
+        Returns:
+            Loaded plan or None if not found
+        """
+        return self.plan_store.load(plan_id)
+    
+    def save_plan(self, plan: Plan) -> Path:
+        """Save a plan to storage.
+        
+        Args:
+            plan: Plan to save
+            
+        Returns:
+            Path to saved plan file
+        """
+        return self.plan_store.save(plan)
+    
+    def list_plans(self, status: Optional[str] = None) -> List[Dict]:
+        """List all plans.
+        
+        Args:
+            status: Filter by status (in_progress, complete, failed)
+            
+        Returns:
+            List of plan metadata
+        """
+        return self.plan_store.list_plans(status=status)
+    
+    def delete_plan(self, plan_id: str, archive: bool = True) -> bool:
+        """Delete a plan.
+        
+        Args:
+            plan_id: Plan ID to delete
+            archive: Whether to archive before deleting
+            
+        Returns:
+            True if deleted successfully
+        """
+        return self.plan_store.delete(plan_id, archive=archive)

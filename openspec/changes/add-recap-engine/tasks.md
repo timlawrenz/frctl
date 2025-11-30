@@ -2,25 +2,25 @@
 
 ## 1. Setup & Dependencies
 
-- [ ] 1.1 Add litellm >= 1.0 to pyproject.toml dependencies
-- [ ] 1.2 Add jinja2 >= 3.0 to pyproject.toml dependencies
-- [ ] 1.3 Create `frctl/planning/` package directory with __init__.py
-- [ ] 1.4 Create `frctl/context/` package directory with __init__.py
-- [ ] 1.5 Create `frctl/llm/` package directory with __init__.py
-- [ ] 1.6 Create `frctl/llm/prompts/` directory for templates
+- [x] 1.1 Add litellm >= 1.0 to pyproject.toml dependencies
+- [x] 1.2 Add jinja2 >= 3.0 to pyproject.toml dependencies
+- [x] 1.3 Create `frctl/planning/` package directory with __init__.py
+- [x] 1.4 Create `frctl/context/` package directory with __init__.py
+- [x] 1.5 Create `frctl/llm/` package directory with __init__.py
+- [x] 1.6 Create `frctl/llm/prompts/` directory for templates
 
 ## 2. LLM Provider Abstraction (frctl/llm/)
 
-- [ ] 2.1 Implement `LLMProvider` class wrapping LiteLLM
-- [ ] 2.2 Add configuration for model selection (model name string)
-- [ ] 2.3 Implement generate() method using litellm.completion()
-- [ ] 2.4 Implement count_tokens() using litellm.token_counter()
-- [ ] 2.5 Add provider configuration from environment variables
-- [ ] 2.6 Configure LiteLLM retry logic (num_retries=3)
-- [ ] 2.7 Add response parsing and validation
-- [ ] 2.8 Implement cost tracking with completion_cost()
-- [ ] 2.9 Add verbose logging for transparency (litellm.set_verbose)
-- [ ] 2.10 Create success/failure callbacks for observability
+- [x] 2.1 Implement `LLMProvider` class wrapping LiteLLM
+- [x] 2.2 Add configuration for model selection (model name string)
+- [x] 2.3 Implement generate() method using litellm.completion()
+- [x] 2.4 Implement count_tokens() using litellm.token_counter()
+- [x] 2.5 Add provider configuration from environment variables
+- [x] 2.6 Configure LiteLLM retry logic (num_retries=3)
+- [x] 2.7 Add response parsing and validation
+- [x] 2.8 Implement cost tracking with completion_cost()
+- [x] 2.9 Add verbose logging for transparency (litellm.set_verbose)
+- [x] 2.10 Create success/failure callbacks for observability
 
 ## 3. Prompt Engineering (frctl/llm/prompts/)
 
@@ -37,38 +37,38 @@
 
 ## 4. Goal Data Model (frctl/planning/)
 
-- [ ] 4.1 Implement `Goal` class with id, description, status
-- [ ] 4.2 Add goal status enum: Pending, Decomposing, Atomic, Complete
-- [ ] 4.3 Implement parent/child relationship tracking
-- [ ] 4.4 Add goal metadata (depth, tokens, created_at)
-- [ ] 4.5 Implement `AtomicGoal` subclass for leaf nodes
-- [ ] 4.6 Implement `CompositeGoal` subclass for branches
-- [ ] 4.7 Add goal validation logic
-- [ ] 4.8 Implement goal serialization to/from dict
-- [ ] 4.9 Add goal dependency tracking
-- [ ] 4.10 Create goal graph integration (link to FederatedGraph)
+- [x] 4.1 Implement `Goal` class with id, description, status
+- [x] 4.2 Add goal status enum: Pending, Decomposing, Atomic, Complete
+- [x] 4.3 Implement parent/child relationship tracking
+- [x] 4.4 Add goal metadata (depth, tokens, created_at)
+- [x] 4.5 Implement `AtomicGoal` subclass for leaf nodes
+- [x] 4.6 Implement `CompositeGoal` subclass for branches
+- [x] 4.7 Add goal validation logic
+- [x] 4.8 Implement goal serialization to/from dict
+- [x] 4.9 Add goal dependency tracking
+- [x] 4.10 Create goal graph integration (link to FederatedGraph)
 
 ## 5. Context Management (frctl/context/)
 
-- [ ] 5.1 Implement `ContextTree` class for hierarchical context
-- [ ] 5.2 Add context node with parent/children pointers
-- [ ] 5.3 Implement hydration: inject parent context into child
-- [ ] 5.4 Implement dehydration: compress child results to digest
-- [ ] 5.5 Add global context registry (project settings, constraints)
-- [ ] 5.6 Implement token hygiene tracking per context node
-- [ ] 5.7 Add context window limit enforcement
-- [ ] 5.8 Create context isolation mechanism
-- [ ] 5.9 Implement parent intent propagation
-- [ ] 5.10 Add context serialization for persistence
+- [x] 5.1 Implement `ContextTree` class for hierarchical context
+- [x] 5.2 Add context node with parent/children pointers
+- [x] 5.3 Implement hydration: inject parent context into child
+- [x] 5.4 Implement dehydration: compress child results to digest
+- [x] 5.5 Add global context registry (project settings, constraints)
+- [x] 5.6 Implement token hygiene tracking per context node
+- [x] 5.7 Add context window limit enforcement
+- [x] 5.8 Create context isolation mechanism
+- [x] 5.9 Implement parent intent propagation
+- [x] 5.10 Add context serialization for persistence
 
 ## 6. Planning Engine (frctl/planning/)
 
-- [ ] 6.1 Implement `PlanningEngine` class
-- [ ] 6.2 Add recursive decomposition algorithm
-- [ ] 6.3 Implement atomicity detection with LLM
-- [ ] 6.4 Add goal splitting logic (1 composite -> N children)
+- [x] 6.1 Implement `PlanningEngine` class
+- [x] 6.2 Add recursive decomposition algorithm
+- [x] 6.3 Implement atomicity detection with LLM
+- [x] 6.4 Add goal splitting logic (1 composite -> N children)
 - [ ] 6.5 Implement dependency inference between siblings
-- [ ] 6.6 Add planning state machine (assess -> decompose -> atomic)
+- [x] 6.6 Add planning state machine (assess -> decompose -> atomic)
 - [ ] 6.7 Implement depth-first planning traversal
 - [ ] 6.8 Add planning pause/resume capability
 - [ ] 6.9 Implement planning rollback (undo decomposition)
@@ -89,21 +89,21 @@
 
 ## 8. Plan Persistence (frctl/planning/)
 
-- [ ] 8.1 Implement plan serialization to JSON
-- [ ] 8.2 Create plan storage in `.frctl/plans/<plan-id>.json`
-- [ ] 8.3 Add plan metadata (created, updated, status)
-- [ ] 8.4 Implement plan loading from JSON
-- [ ] 8.5 Add plan versioning with Git integration
-- [ ] 8.6 Create plan index for quick lookup
-- [ ] 8.7 Implement plan archiving
-- [ ] 8.8 Add plan export to other formats
-- [ ] 8.9 Create plan backup mechanism
-- [ ] 8.10 Implement plan deletion with safety checks
+- [x] 8.1 Implement plan serialization to JSON
+- [x] 8.2 Create plan storage in `.frctl/plans/<plan-id>.json`
+- [x] 8.3 Add plan metadata (created, updated, status)
+- [x] 8.4 Implement plan loading from JSON
+- [x] 8.5 Add plan versioning with Git integration
+- [x] 8.6 Create plan index for quick lookup
+- [x] 8.7 Implement plan archiving
+- [x] 8.8 Add plan export to other formats
+- [x] 8.9 Create plan backup mechanism
+- [x] 8.10 Implement plan deletion with safety checks
 
 ## 9. CLI Commands (frctl/__main__.py)
 
-- [ ] 9.1 Create `plan` command group using Click
-- [ ] 9.2 Implement `frctl plan init <goal>` - Start planning session
+- [x] 9.1 Create `plan` command group using Click
+- [x] 9.2 Implement `frctl plan init <goal>` - Start planning session
 - [ ] 9.3 Implement `frctl plan status [plan-id]` - Show planning tree
 - [ ] 9.4 Implement `frctl plan continue <plan-id>` - Resume planning
 - [ ] 9.5 Implement `frctl plan review <node-id>` - Review goal details
@@ -111,7 +111,7 @@
 - [ ] 9.7 Implement `frctl plan visualize <plan-id>` - Generate tree diagram
 - [ ] 9.8 Implement `frctl plan list` - List all plans
 - [ ] 9.9 Implement `frctl plan delete <plan-id>` - Delete plan
-- [ ] 9.10 Add `--provider` flag for LLM selection
+- [x] 9.10 Add `--provider` flag for LLM selection
 
 ## 10. Configuration Management
 
@@ -128,13 +128,13 @@
 
 ## 11. Testing
 
-- [ ] 11.1 Write unit tests for Goal class
-- [ ] 11.2 Write unit tests for ContextTree
-- [ ] 11.3 Write unit tests for hydration/dehydration
+- [x] 11.1 Write unit tests for Goal class (10 tests)
+- [x] 11.2 Write unit tests for ContextTree (18 tests)
+- [x] 11.3 Write unit tests for hydration/dehydration
 - [ ] 11.4 Write unit tests for digest generation
 - [ ] 11.5 Write unit tests for atomicity detection
-- [ ] 11.6 Write unit tests for planning engine
-- [ ] 11.7 Write integration tests with mock LLM responses
+- [x] 11.6 Write unit tests for planning engine (6 integration tests)
+- [x] 11.7 Write integration tests with mock LLM responses
 - [ ] 11.8 Write integration tests for CLI commands
 - [ ] 11.9 Add mock LiteLLM provider for deterministic testing
 - [ ] 11.10 Create end-to-end planning test with multiple providers

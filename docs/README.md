@@ -10,7 +10,8 @@ This directory contains documentation for the **frctl** (Fractal) project - a de
 
 ### User Guides
 - **[guides/graph-basics.md](./guides/graph-basics.md)** - Getting started with Federated Graph
-- **[guides/context-tree.md](./guides/context-tree.md)** - Understanding hierarchical context management ✨ *NEW*
+- **[guides/planning-basics.md](./guides/planning-basics.md)** - ReCAP planning engine usage ✨ *NEW*
+- **[guides/context-tree.md](./guides/context-tree.md)** - Understanding hierarchical context management
 
 ### Reference
 - **[schemas/graph-json.md](./schemas/graph-json.md)** - Graph JSON schema documentation
@@ -34,20 +35,22 @@ Fractal V3 is a deterministic architecture for AI-driven software engineering th
 - 85 comprehensive tests
 - See: `guides/graph-basics.md`
 
-#### 🚧 Phase 2 In Progress: ReCAP Planning (29% complete)
+#### 🚧 Phase 2 In Progress: ReCAP Planning (47% complete)
 - ✅ Goal and Plan data models
 - ✅ LLM provider abstraction (LiteLLM)
 - ✅ Basic planning engine with atomicity detection
-- ✅ **Context Tree for hierarchical context management** ✨ *NEW*
+- ✅ **Context Tree for hierarchical context management**
+- ✅ **Plan Persistence with auto-save** ✨ *NEW*
 - 🔄 Digest protocol for context compression
 - 🔄 Prompt templates (Jinja2)
-- 🔄 Plan persistence
+- 🔄 Expanded CLI commands
 
 **New This Week:**
-- **Context Tree** - Full implementation of hydration/dehydration protocol
-- 18 comprehensive context tests
-- 6 integration tests for engine-context interaction
-- See: `guides/context-tree.md`
+- **Plan Persistence** - Full save/load with .frctl/plans/ storage
+- 22 comprehensive persistence tests
+- Auto-save during planning
+- Plan indexing and archiving
+- See: `guides/planning-basics.md` ✨ *NEW*
 
 #### 📋 Phase 3 Planned: Tandem Protocol
 - Interactive review interface
