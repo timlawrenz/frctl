@@ -1,81 +1,94 @@
-# frctl Project Documentation
+# Frctl Documentation
 
-This directory contains documentation for the **frctl** (Fractal) project - a deterministic topological architecture for agentic software engineering.
+Complete documentation for the Fractal V3 architecture and frctl tool.
 
-## Documents
+## User Guides
 
-### Architecture & Planning
-- **[fractal-v3-architecture.md](./fractal-v3-architecture.md)** - Complete technical specification for Fractal V3, including theoretical foundations and design
-- **[roadmap.md](./roadmap.md)** - Implementation roadmap with phased development plan
+Start here if you're new to frctl:
 
-### User Guides
-- **[guides/graph-basics.md](./guides/graph-basics.md)** - Getting started with Federated Graph
-- **[guides/planning-basics.md](./guides/planning-basics.md)** - ReCAP planning engine usage ✨ *NEW*
-- **[guides/context-tree.md](./guides/context-tree.md)** - Understanding hierarchical context management
+- **[Quick Reference](./QUICK_REFERENCE.md)** - CLI command cheat sheet
+- **[Configuration Guide](./guides/configuration.md)** - Complete LLM provider setup
+- **[Planning Basics](./guides/planning-basics.md)** - Using the ReCAP planning engine
+- **[Graph Basics](./guides/graph-basics.md)** - Working with architectural graphs
+- **[Context Tree Guide](./guides/context-tree.md)** - Understanding hierarchical context
 
-### Reference
-- **[schemas/graph-json.md](./schemas/graph-json.md)** - Graph JSON schema documentation
+## Technical Documentation
 
-## Overview
+Deep dives into the architecture:
 
-Fractal V3 is a deterministic architecture for AI-driven software engineering that solves the "Context Coherence Crisis" through:
+- **[Fractal V3 Architecture](./fractal-v3-architecture.md)** - Complete technical specification
+- **[Implementation Roadmap](./roadmap.md)** - Development phases and progress
+- **[Implementation Summary](./IMPLEMENTATION_SUMMARY.md)** - What's been built so far
 
-### Core Innovations
+## Reference
 
-1. **Federated Graph Architecture** - Topological DAG-based representation replacing file-centric models ✅ *Implemented*
-2. **Recursive Context-Aware Planning (ReCAP)** - Hierarchical planning that maintains architectural integrity 🚧 *In Progress*
-3. **Tandem Protocol** - Human-in-the-loop system where agents propose architectural plans rather than execute autonomously 📋 *Planned*
+- **[Graph JSON Schema](./schemas/graph-json.md)** - Graph serialization format
+- **[Examples](./examples/)** - Code examples and tutorials
 
-### Implementation Status
+## Getting Started
 
-#### ✅ Phase 1 Complete: Federated Graph
-- Full DAG implementation with cycle detection
-- 10 CLI commands for graph management
-- Serialization with Merkle hashing
-- 85 comprehensive tests
-- See: `guides/graph-basics.md`
+### 1. Installation
 
-#### 🚧 Phase 2 In Progress: ReCAP Planning (47% complete)
-- ✅ Goal and Plan data models
-- ✅ LLM provider abstraction (LiteLLM)
-- ✅ Basic planning engine with atomicity detection
-- ✅ **Context Tree for hierarchical context management**
-- ✅ **Plan Persistence with auto-save** ✨ *NEW*
-- 🔄 Digest protocol for context compression
-- 🔄 Prompt templates (Jinja2)
-- 🔄 Expanded CLI commands
+\`\`\`bash
+git clone https://github.com/timlawrenz/frctl.git
+cd frctl
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e .
+\`\`\`
 
-**New This Week:**
-- **Plan Persistence** - Full save/load with .frctl/plans/ storage
-- 22 comprehensive persistence tests
-- Auto-save during planning
-- Plan indexing and archiving
-- See: `guides/planning-basics.md` ✨ *NEW*
+### 2. Configuration
 
-#### 📋 Phase 3 Planned: Tandem Protocol
-- Interactive review interface
-- Approval workflow
-- Policy gates
-- Version control integration
+\`\`\`bash
+frctl config init
+export OPENAI_API_KEY=sk-...  # Or ANTHROPIC_API_KEY, GEMINI_API_KEY, etc.
+frctl config test
+\`\`\`
 
-### Key Components
+See the [Configuration Guide](./guides/configuration.md) for all options.
 
-- **Planning Layer** - Decomposes high-level goals into executable tasks
-- **Context Tree** - Manages context isolation and token hygiene ✨ *NEW*
-- **State Management** - Graph-based system state with strict dependency tracking  
-- **Execution Layer** - Transactional code generation with rollback capabilities
-- **Drift Resolution** - Automatic detection and reconciliation of implementation vs. plan divergence
+### 3. Start Planning
 
-### Technologies & Concepts
+\`\`\`bash
+frctl plan init "Your goal here"
+frctl plan status <plan-id>
+frctl plan visualize <plan-id>
+\`\`\`
 
-- **DAG (Directed Acyclic Graph)** - Core data structure for dependency management
-- **ReCAP (Recursive Context-Aware Planning)** - Hierarchical goal decomposition
-- **Context Tree** - Hierarchical context with O(N·D) complexity vs O(N²) for linear chains ✨ *NEW*
-- **Hydration/Dehydration** - Token-efficient context propagation ✨ *NEW*
-- **Topological Sorting** - Ensures valid execution order
-- **Transactional Rollback** - Safe failure recovery
-- **Context-Coupling Orthogonality** - Managing vertical hierarchy and horizontal dependencies
+See [Planning Basics](./guides/planning-basics.md) for details.
 
----
+## Documentation Structure
 
-*For complete details, see the [Fractal V3 Architecture document](./fractal-v3-architecture.md).*
+\`\`\`
+docs/
+├── README.md                          # This file
+├── QUICK_REFERENCE.md                 # CLI cheat sheet
+├── fractal-v3-architecture.md         # Core architecture spec
+├── roadmap.md                         # Implementation plan
+├── IMPLEMENTATION_SUMMARY.md          # Current progress
+├── guides/                            # User guides
+│   ├── configuration.md               # LLM setup
+│   ├── planning-basics.md             # Planning guide
+│   ├── graph-basics.md                # Graph guide
+│   └── context-tree.md                # Context management
+├── schemas/                           # Data formats
+│   └── graph-json.md                  # Graph JSON spec
+└── examples/                          # Code examples
+    └── (examples here)
+\`\`\`
+
+## Development Documentation
+
+Development process documentation is in [\`/dev-docs\`](../dev-docs/):
+
+- **[Session Brief](../dev-docs/SESSION_BRIEF.md)** - Current development status
+- **[Development Docs](../dev-docs/)** - All development notes
+
+## Support
+
+- **Issues**: [GitHub Issues](https://github.com/timlawrenz/frctl/issues)
+- **Repository**: https://github.com/timlawrenz/frctl
+
+## Contributing
+
+See [development docs](../dev-docs/) for contribution guidelines and current status.

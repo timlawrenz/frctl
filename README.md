@@ -1,265 +1,272 @@
-# frctl (Fractal V3)
+# frctl - Fractal V3
 
-**A Deterministic Topological Architecture for Agentic Software Engineering**
+> A Deterministic Topological Architecture for Agentic Software Engineering
 
-Fractal V3 solves the "Context Coherence Crisis" in AI-driven software development by replacing linear reasoning chains with a graph-based, deterministic architecture.
+[![Tests](https://img.shields.io/badge/tests-230%20passing-brightgreen)](./tests)
+[![Phase 2](https://img.shields.io/badge/phase%202-83%25%20complete-blue)](./dev-docs/SESSION_BRIEF.md)
+[![Documentation](https://img.shields.io/badge/docs-complete-green)](./docs)
 
-## Overview
+Frctl implements the **Fractal V3 architecture** - a system that transforms AI agents from erratic code generators into disciplined architectural planners by solving the "Context Coherence Crisis" through deterministic, graph-based planning.
 
-Frctl implements the Fractal V3 architecture - a system that transforms AI agents from erratic code generators into disciplined architectural planners through:
+## What is Frctl?
 
-- **Federated Graph Architecture** - DAG-based dependency management
-- **Tandem Protocol** - Human-in-the-loop planning workflow
-- **Recursive Context-Aware Planning (ReCAP)** - Hierarchical task decomposition
-- **Transactional Execution** - Safe rollback and drift resolution
+Frctl is a planning and architecture management tool designed for AI-assisted software development. It provides:
 
-## Documentation
+- 🏗️ **Federated Graph Architecture** - DAG-based dependency management for components
+- 🤖 **ReCAP Planning Engine** - Recursive Context-Aware Planning with LLM integration
+- 🔄 **100+ LLM Provider Support** - OpenAI, Anthropic, Google, Cohere, local models (Ollama)
+- 📊 **Hierarchical Task Decomposition** - Break complex goals into atomic, executable tasks
+- 💾 **Plan Persistence** - Save, load, and version architectural plans
+- 🔒 **Secure Configuration** - API key management via environment variables
 
-See the [docs/](./docs/) directory for complete technical specifications:
+## Why Frctl?
 
-- [Fractal V3 Architecture](./docs/fractal-v3-architecture.md) - Complete technical specification
+Traditional AI coding agents suffer from the **Context Coherence Crisis** - as reasoning chains grow, architectural decisions become disjointed and contradictory. Frctl solves this by:
+
+1. **Recursive Decomposition** - Breaking complex goals into manageable subtasks
+2. **Context Isolation** - Each subtask gets a fresh context window
+3. **Digest Protocol** - Compressing results while preserving architectural intent
+4. **Graph Validation** - Ensuring consistency across the entire system
 
 ## Quick Start
 
 ### Installation
 
-```bash
+\`\`\`bash
 # Clone the repository
-git clone https://github.com/your-org/frctl.git
+git clone https://github.com/timlawrenz/frctl.git
 cd frctl
 
-# Install with dev dependencies
-pip install -e ".[dev]"
-```
+# Create virtual environment
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install frctl
+pip install -e .
+\`\`\`
 
 ### Configuration
 
-Set up your LLM provider:
-
-```bash
+\`\`\`bash
 # Initialize configuration
 frctl config init
 
-# Set API key (choose one)
+# Set your LLM API key (choose one)
 export OPENAI_API_KEY=sk-...
 export ANTHROPIC_API_KEY=sk-ant-...
 export GEMINI_API_KEY=...
 
-# Test connection
+# Or use local models (no API key needed!)
+export FRCTL_LLM_MODEL=ollama/codellama
+
+# Test your setup
 frctl config test
-```
+\`\`\`
 
-For more configuration options, see [Configuration Guide](./docs/guides/configuration.md).
+### Your First Plan
 
-### Planning Workflow
-
-```bash
-# Start a new planning session
-frctl plan init "Build a microservices API"
+\`\`\`bash
+# Start planning
+frctl plan init "Build a REST API with authentication"
 
 # The planning engine will:
-# 1. Recursively decompose your goal into atomic tasks
-# 2. Identify dependencies between tasks
-# 3. Generate a complete architectural plan
+# 1. Recursively decompose your goal
+# 2. Identify dependencies
+# 3. Generate atomic tasks
 
 # View the plan
 frctl plan status <plan-id>
 
-# Visualize as tree
+# Visualize as a tree
 frctl plan visualize <plan-id>
+\`\`\`
 
-# Export to JSON
-frctl plan export <plan-id> plan.json
-```
+### Working with Graphs
 
-### Initialize a Graph
-
-```bash
-# Create a new architectural graph
+\`\`\`bash
+# Initialize architectural graph
 frctl graph init
 
-# Add some nodes
+# Add components
 frctl graph add-node Service api-gateway
 frctl graph add-node Library auth-utils
 frctl graph add-node Schema user-schema
 
-# Add relationships
-frctl graph add-edge pkg:frctl/api-gateway@local pkg:frctl/auth-utils@local --type DEPENDS_ON
-frctl graph add-edge pkg:frctl/api-gateway@local pkg:frctl/user-schema@local --type CONSUMES
+# Define relationships
+frctl graph add-edge \\
+  pkg:frctl/api-gateway@local \\
+  pkg:frctl/auth-utils@local \\
+  --type DEPENDS_ON
 
-# View the graph
+# View your architecture
 frctl graph show
+\`\`\`
 
-# Validate integrity
-frctl graph validate
-```
+## Core Features
 
-### Programmatic Usage
+### 🤖 Multi-Provider LLM Support
 
-```python
-from frctl.graph import FederatedGraph, Node, NodeType, Edge, EdgeType
-from frctl.graph.dag import generate_purl
-from pathlib import Path
+Frctl supports 100+ LLM providers via LiteLLM:
 
-# Create a graph
-g = FederatedGraph()
+- **OpenAI** - GPT-4, GPT-4 Turbo, GPT-3.5
+- **Anthropic** - Claude 3.5 Sonnet, Claude 3 Opus
+- **Google** - Gemini 1.5 Pro/Flash
+- **Cohere** - Command R+
+- **Local Models** - Ollama (CodeLlama, Mistral, etc.)
+- **And 95+ more** - Azure, AWS Bedrock, Together, etc.
 
-# Add nodes
-api = Node(
-    id=generate_purl("api-gateway"),
+### 📊 Recursive Planning (ReCAP)
+
+The ReCAP algorithm decomposes goals hierarchically:
+
+\`\`\`
+Goal: Build REST API
+├── Design API Schema
+│   ├── Define User Model
+│   ├── Define Authentication Endpoints
+│   └── Define Resource Endpoints
+├── Implement Authentication
+│   ├── Setup JWT Library
+│   ├── Implement Login
+│   └── Implement Token Validation
+└── Implement Endpoints
+    ├── User CRUD Operations
+    └── Error Handling
+\`\`\`
+
+Each level maintains context coherence while isolating complexity.
+
+### 🏗️ Graph Architecture
+
+Manage component dependencies with a directed acyclic graph:
+
+\`\`\`python
+from frctl.graph import FederatedGraph, Node, NodeType
+
+graph = FederatedGraph()
+graph.add_node(Node(
+    id="pkg:frctl/api@local",
     type=NodeType.SERVICE,
     name="api-gateway"
-)
-g.add_node(api)
-
-# Add dependencies
-auth = Node(
-    id=generate_purl("auth-lib"),
-    type=NodeType.LIBRARY,
-    name="auth-lib"
-)
-g.add_node(auth)
-
-g.add_edge(Edge(
-    source=api.id,
-    target=auth.id,
-    edge_type=EdgeType.DEPENDS_ON
 ))
+\`\`\`
 
-# Save to file
-g.save(Path(".frctl/graph.json"))
+### 💾 Plan Persistence
 
-# Query the graph
-ancestors = g.get_ancestors(api.id)
-sorted_nodes = g.topological_sort()
-```
+Save and version your architectural plans:
 
-## Features
-
-### ✅ Federated Graph (v0.1.0)
-
-Complete graph data model with:
-- **Node Types**: Service, Library, Schema, Endpoint, Component
-- **Edge Types**: DEPENDS_ON, CONSUMES, OWNS, IMPLEMENTS
-- **DAG Validation**: Automatic cycle detection and prevention
-- **Deterministic Serialization**: Merkle hashing for architecture drift detection
-- **Graph Operations**: Topological sort, ancestor/descendant queries, subgraph extraction
-- **CLI Commands**: Full command-line interface for graph manipulation
-- **TypeSpec Support**: Basic edge contract support (full validation in Phase 2)
-
-See [Graph Basics Guide](./docs/guides/graph-basics.md) for detailed usage.
-
-### 🔨 ReCAP Planning Engine (Phase 2 - In Progress)
-
-**Status**: 47% complete (59/126 tasks)
-
-Hierarchical goal decomposition with:
-- ✅ **Context Tree** - Hierarchical context management with token hygiene
-- ✅ **Plan Persistence** - Automatic save/load to `.frctl/plans/`
-- ✅ **LLM Integration** - Support for 100+ providers via LiteLLM
-- ✅ **Atomicity Detection** - LLM-based assessment of task decomposability
-- 🚧 **Digest Protocol** - Context compression (coming soon)
-- 🚧 **Prompt Templates** - Jinja2 templating (coming soon)
-
-**Usage**:
-```python
-from frctl.planning import PlanningEngine
-
-# Create planning engine with auto-save
-engine = PlanningEngine()
-
-# Run recursive planning
-plan = engine.run("Build a microservices authentication system")
-
+\`\`\`bash
 # Plans auto-save to .frctl/plans/
-# Load existing plan
-loaded = engine.load_plan(plan.id)
+frctl plan list
+frctl plan export <plan-id> output.json
+\`\`\`
 
-# List all plans
-plans = engine.list_plans()
-```
+### 🔒 Secure Configuration
 
-See [Context Tree Guide](./docs/guides/context-tree.md) for details on hierarchical context management.
+Never commit API keys - use environment variables:
 
-### 🚧 Coming Soon
+\`\`\`toml
+# .frctl/config.toml
+[llm]
+model = "gpt-4"
+temperature = 0.7
+max_tokens = 2000
 
-- **Tandem Protocol** - Human-in-the-loop workflow (Phase 3)
-- **Policy Gates** - Validation rules and constraints (Phase 3)
-- **Drift Detection** - Architecture reconciliation (Phase 4)
+[planning]
+max_depth = 10
+context_window_size = 128000
+\`\`\`
 
 ## Documentation
 
-- **Guides**
-  - [Graph Basics](./docs/guides/graph-basics.md) - Introduction and tutorial
-  - [Context Tree](./docs/guides/context-tree.md) - Hierarchical context management
-- **Schemas**
-  - [Graph JSON Format](./docs/schemas/graph-json.md) - Serialization format
-- **Examples**
-  - [Microservices Architecture](./docs/examples/microservices_example.py) - Complete example
-- **Architecture**
-  - [Fractal V3 Specification](./docs/fractal-v3-architecture.md) - Complete technical specification
-  - [Implementation Roadmap](./docs/roadmap.md) - Development plan
-- **Implementation Notes**
-  - [Plan Persistence](./PERSISTENCE_COMPLETE.md) - Plan storage implementation details
+### User Guides
 
-## Testing
+- [Configuration Guide](./docs/guides/configuration.md) - Complete LLM setup guide
+- [Planning Basics](./docs/guides/planning-basics.md) - Using the ReCAP engine
+- [Graph Basics](./docs/guides/graph-basics.md) - Working with architectural graphs
+- [Quick Reference](./docs/QUICK_REFERENCE.md) - CLI command cheat sheet
 
-```bash
-# Run all tests
-pytest
+### Technical Documentation
 
-# Run with coverage
-pytest --cov=frctl --cov-report=html
+- [Fractal V3 Architecture](./docs/fractal-v3-architecture.md) - Complete technical specification
+- [Implementation Roadmap](./docs/roadmap.md) - Development phases
+- [Graph JSON Schema](./docs/schemas/graph-json.md) - Graph serialization format
 
-# Run only fast tests (skip performance tests)
-pytest -m "not slow"
-```
+### Development
 
-**Test Coverage**: 141 tests covering:
-- **Graph** (85 tests): Node validation, edge validation, DAG operations, cycle detection, serialization, performance
-- **Planning** (38 tests): Goal models, context tree, plan persistence, engine integration
-- **Context** (18 tests): Hierarchical context, token tracking, hydration/dehydration
+- [Development Docs](./dev-docs/) - Development process documentation
+- [Session Brief](./dev-docs/SESSION_BRIEF.md) - Current development status
 
-## CLI Reference
+## CLI Commands
 
-```bash
-# Graph commands
-frctl graph init              # Initialize empty graph
-frctl graph show              # Display graph structure
-frctl graph add-node <type> <name>  # Add a node
-frctl graph add-edge <from> <to> [--type TYPE]  # Add an edge
-frctl graph remove-node <id>  # Remove a node
-frctl graph remove-edge <from> <to>  # Remove an edge
-frctl graph validate          # Validate DAG integrity
-frctl graph export [path]     # Export as JSON
-frctl graph stats             # Show statistics
+\`\`\`bash
+# Configuration
+frctl config init              # Initialize config
+frctl config show              # Display current config
+frctl config test              # Test LLM connection
 
-# Planning commands (Phase 2 - In Progress)
-frctl plan init <description>  # Start planning session (saves to .frctl/plans/)
-# Coming soon:
-# frctl plan list              # List all plans
-# frctl plan status [plan-id]  # Show planning tree
-# frctl plan continue <plan-id> # Resume planning
-# frctl plan export <plan-id>  # Export plan
-# frctl plan delete <plan-id>  # Delete plan
-```
+# Planning
+frctl plan init "goal"         # Start new plan
+frctl plan status <id>         # View plan status
+frctl plan visualize <id>      # Visualize plan tree
+frctl plan export <id>         # Export to JSON
+
+# Graph
+frctl graph init               # Initialize graph
+frctl graph add-node TYPE NAME # Add component
+frctl graph add-edge A B       # Add dependency
+frctl graph show               # Display graph
+frctl graph validate           # Validate integrity
+\`\`\`
+
+See [Quick Reference](./docs/QUICK_REFERENCE.md) for complete command list.
 
 ## Project Status
 
-**Phase 1 Complete** ✅ - Federated Graph implementation (v0.1.0)
-- Full DAG-based dependency management
-- 85 tests, 100% pass rate
-- Complete CLI and documentation
+**Phase 1: Federated Graph** ✅ Complete (100%)
+- Full DAG implementation
+- 85 tests passing
+- Complete documentation
 
-**Phase 2 In Progress** 🔨 - ReCAP Planning Engine (47% complete)
-- ✅ Context Tree with hierarchical context management
-- ✅ Plan Persistence with automatic save/load
-- ✅ LLM integration supporting 100+ providers
-- ✅ 56 tests for planning and context
-- 🚧 Digest Protocol, Prompt Templates, expanded CLI coming soon
+**Phase 2: ReCAP Planning Engine** ⚠️ In Progress (83%)
+- ✅ LLM provider integration (100+ providers)
+- ✅ Goal decomposition engine
+- ✅ Context tree with hydration/dehydration
+- ✅ Digest protocol for context compression
+- ✅ Plan persistence with versioning
+- ✅ Complete CLI
+- ✅ Configuration system
+- ⚠️ Documentation in progress
+- ⚠️ Final validation pending
 
-**Overall Progress**: ~55% complete
+**Total**: 230 tests passing | 83% complete
+
+See [Session Brief](./dev-docs/SESSION_BRIEF.md) for detailed progress.
+
+## Architecture
+
+Frctl implements three core subsystems:
+
+1. **Federated Graph** - Manages component dependencies as a DAG
+2. **ReCAP Planning** - Recursively decomposes goals with LLM assistance
+3. **Context Tree** - Maintains hierarchical context for coherent planning
+
+The system ensures that architectural decisions remain consistent even as complexity grows, solving the Context Coherence Crisis that plagues traditional AI coding agents.
+
+## Contributing
+
+This project is under active development. See [development docs](./dev-docs/) for current status and implementation notes.
 
 ## License
 
-TBD
+[License information to be added]
+
+## Links
+
+- **Repository**: https://github.com/timlawrenz/frctl
+- **Documentation**: [./docs](./docs)
+- **Issues**: [GitHub Issues](https://github.com/timlawrenz/frctl/issues)
+
+---
+
+**Built with** ❤️ **using Fractal V3 architecture principles**
