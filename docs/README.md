@@ -29,37 +29,37 @@ Deep dives into the architecture:
 
 ### 1. Installation
 
-\`\`\`bash
+```bash
 git clone https://github.com/timlawrenz/frctl.git
 cd frctl
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e .
-\`\`\`
+```
 
 ### 2. Configuration
 
-\`\`\`bash
+```bash
 frctl config init
 export OPENAI_API_KEY=sk-...  # Or ANTHROPIC_API_KEY, GEMINI_API_KEY, etc.
 frctl config test
-\`\`\`
+```
 
 See the [Configuration Guide](./guides/configuration.md) for all options.
 
 ### 3. Start Planning
 
-\`\`\`bash
+```bash
 frctl plan init "Your goal here"
 frctl plan status <plan-id>
 frctl plan visualize <plan-id>
-\`\`\`
+```
 
 See [Planning Basics](./guides/planning-basics.md) for details.
 
 ## Documentation Structure
 
-\`\`\`
+```
 docs/
 ├── README.md                          # This file
 ├── QUICK_REFERENCE.md                 # CLI cheat sheet
@@ -75,11 +75,11 @@ docs/
 │   └── graph-json.md                  # Graph JSON spec
 └── examples/                          # Code examples
     └── (examples here)
-\`\`\`
+```
 
 ## Development Documentation
 
-Development process documentation is in [\`/dev-docs\`](../dev-docs/):
+Development process documentation is in [`/dev-docs`](../dev-docs/):
 
 - **[Session Brief](../dev-docs/SESSION_BRIEF.md)** - Current development status
 - **[Development Docs](../dev-docs/)** - All development notes

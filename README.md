@@ -32,7 +32,7 @@ Traditional AI coding agents suffer from the **Context Coherence Crisis** - as r
 
 ### Installation
 
-\`\`\`bash
+```bash
 # Clone the repository
 git clone https://github.com/timlawrenz/frctl.git
 cd frctl
@@ -43,11 +43,11 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
 # Install frctl
 pip install -e .
-\`\`\`
+```
 
 ### Configuration
 
-\`\`\`bash
+```bash
 # Initialize configuration
 frctl config init
 
@@ -61,11 +61,11 @@ export FRCTL_LLM_MODEL=ollama/codellama
 
 # Test your setup
 frctl config test
-\`\`\`
+```
 
 ### Your First Plan
 
-\`\`\`bash
+```bash
 # Start planning
 frctl plan init "Build a REST API with authentication"
 
@@ -79,11 +79,11 @@ frctl plan status <plan-id>
 
 # Visualize as a tree
 frctl plan visualize <plan-id>
-\`\`\`
+```
 
 ### Working with Graphs
 
-\`\`\`bash
+```bash
 # Initialize architectural graph
 frctl graph init
 
@@ -100,7 +100,7 @@ frctl graph add-edge \\
 
 # View your architecture
 frctl graph show
-\`\`\`
+```
 
 ## Core Features
 
@@ -119,7 +119,7 @@ Frctl supports 100+ LLM providers via LiteLLM:
 
 The ReCAP algorithm decomposes goals hierarchically:
 
-\`\`\`
+```
 Goal: Build REST API
 ├── Design API Schema
 │   ├── Define User Model
@@ -132,7 +132,7 @@ Goal: Build REST API
 └── Implement Endpoints
     ├── User CRUD Operations
     └── Error Handling
-\`\`\`
+```
 
 Each level maintains context coherence while isolating complexity.
 
@@ -140,7 +140,7 @@ Each level maintains context coherence while isolating complexity.
 
 Manage component dependencies with a directed acyclic graph:
 
-\`\`\`python
+```python
 from frctl.graph import FederatedGraph, Node, NodeType
 
 graph = FederatedGraph()
@@ -149,23 +149,23 @@ graph.add_node(Node(
     type=NodeType.SERVICE,
     name="api-gateway"
 ))
-\`\`\`
+```
 
 ### 💾 Plan Persistence
 
 Save and version your architectural plans:
 
-\`\`\`bash
+```bash
 # Plans auto-save to .frctl/plans/
 frctl plan list
 frctl plan export <plan-id> output.json
-\`\`\`
+```
 
 ### 🔒 Secure Configuration
 
 Never commit API keys - use environment variables:
 
-\`\`\`toml
+```toml
 # .frctl/config.toml
 [llm]
 model = "gpt-4"
@@ -175,7 +175,7 @@ max_tokens = 2000
 [planning]
 max_depth = 10
 context_window_size = 128000
-\`\`\`
+```
 
 ## Documentation
 
@@ -199,7 +199,7 @@ context_window_size = 128000
 
 ## CLI Commands
 
-\`\`\`bash
+```bash
 # Configuration
 frctl config init              # Initialize config
 frctl config show              # Display current config
@@ -217,7 +217,7 @@ frctl graph add-node TYPE NAME # Add component
 frctl graph add-edge A B       # Add dependency
 frctl graph show               # Display graph
 frctl graph validate           # Validate integrity
-\`\`\`
+```
 
 See [Quick Reference](./docs/QUICK_REFERENCE.md) for complete command list.
 
